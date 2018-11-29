@@ -14,3 +14,15 @@ P3
 
 tool:
 [PPM预览器](http://paulcuth.me.uk/netpbm-viewer/)
+
+
+## vec3
+```
+float e[3]
+```
+
+## ray
+```
+vec3 origin;
+vec3 direction;
+```
