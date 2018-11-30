@@ -52,3 +52,19 @@ expend it => dot(A + B*t - C, A + B*t - C) = r * r
 ## surface normal and multiple objects
 
 normal : unit vector
+
+```
+hitable{
+    virtual bool hit();
+}
+```
+
+```
+sphere:public hitable
+```
+
+```
+hitable_list: public hitable
+```
+
+## anti aliasing 抗锯齿
