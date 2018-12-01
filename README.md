@@ -1,5 +1,5 @@
 # ray_tracing
-# chapter 1
+## chapter 1
 ```
 PPM format
 P3
@@ -17,22 +17,26 @@ tool:
 
 1.ppm
 
-## vec3
+## 2 vec3
 ```
 float e[3]
 ```
 
 2.ppm
 
-## ray
+## 3 ray
 ```
 vec3 origin;
 vec3 direction;
 ```
 
+camera(eye) is in vec3(0.0, 0.0, 0.0)
+
+[![FnnwXn.md.png](https://s1.ax1x.com/2018/12/01/FnnwXn.md.png)](https://imgchr.com/i/FnnwXn)
+
 3.ppm
 
-## add sphere
+## 4 add sphere
 set center = C
 
 set any point on sphere P
@@ -49,7 +53,7 @@ expend it => dot(A + B*t - C, A + B*t - C) = r * r
 4.ppm
 
 
-## surface normal and multiple objects
+## 5 surface normal and multiple objects
 
 normal : unit vector
 
@@ -67,10 +71,18 @@ sphere:public hitable
 hitable_list: public hitable
 ```
 
-## anti aliasing 抗锯齿
+## 6 anti aliasing 抗锯齿
 
 average samples in one pixel
 
 before: 1/nx 2/nx 3/nx ...
 
 after: 1/nx can be average by (1.1/nx + 1.2/nx + ...) / ns
+
+
+## 7 material 材质
+mix material and geometry or separate ?
+
+start with separate
+
+diffuse material
