@@ -26,9 +26,9 @@ vec3 color(const ray& r, hitable *world, int depth) {
 }
 
 int main() {
-    int nx = 200;
-    int ny = 100;
-    int ns = 100;
+    int nx = 1000;
+    int ny = 500;
+    int ns = 20;
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";
     hitable *list[4];
     list[0] = new sphere(vec3(0,0,-1), 0.5, new lambertian(vec3(0.1, 0.2, 0.5)));
@@ -37,7 +37,7 @@ int main() {
     //list[3] = new sphere(vec3(-1,0,-1), 0.5, new metal(vec3(0.8, 0.8, 0.8), 0.0));
     list[3] = new sphere(vec3(-1,0,-1), 0.5, new dielectric(1.5));
     hitable *world = new hitable_list(list,4);
-    camera cam(90, float(nx) / float(ny));
+    camera cam(vec3(-2, 2, 1), vec3(0,0,-1), vec3(0,1,0), 90, float(nx) / float(ny));
 
     for (int j = ny-1; j >= 0; j--) {
         for (int i = 0; i < nx; i++) {

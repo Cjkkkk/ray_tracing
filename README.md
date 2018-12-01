@@ -121,5 +121,20 @@ ps attenuation == 1 因为透明材料不吸收能量
 Christophe Schlick的一个多项式近似
 
 ## 10 camera
-field of view
+field of view 视野角度
+即原点为起点，在y方向长成的角度
+然后定义长宽比
+最后得到ray扫描的范围
 
+扩展相机
+=> 不一定在原点
+
+需要有
+lookfrom 即从那里看
+lookat 即看向哪里
+以及相机绕着 lookfrom-lookat 轴的旋转角度 upvector
+可以理解为即使一个人正对着对面的物体，也有倒立看和躺着看的情况，这里人的位置就是lookfrom
+观察对象的位置就是lookat，可以看到即使两点确定，仍然有多种观看方式，所以需要锁定up vector
+
+得到lookfrom与lookat练成的向量(a,b,c)
+首先得到与它垂直的向量(-b,-a,0)
