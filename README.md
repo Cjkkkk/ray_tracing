@@ -92,3 +92,11 @@ absorb light
 approximate Lambertian
 
 gamma corrected
+
+choice
+* scatter always and attenuate by its reflectance R
+* scatter with no attenuation but absorb fraction 1 - R of the rays
+* mixture of those strategies
+
+
+albedo 反射率
