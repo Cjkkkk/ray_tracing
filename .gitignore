@@ -1,2 +1,5 @@
 cmake-build-debug/
 .idea/
+cmake-install.cmake
+CMakeCache.txt
+ray_tracing

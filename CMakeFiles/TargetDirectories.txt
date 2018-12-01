@@ -1,0 +1,3 @@
+/home/kk/ray_tracing/CMakeFiles/rebuild_cache.dir
+/home/kk/ray_tracing/CMakeFiles/ray_tracing.dir
+/home/kk/ray_tracing/CMakeFiles/edit_cache.dir

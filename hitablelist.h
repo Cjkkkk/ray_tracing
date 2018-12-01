@@ -15,10 +15,6 @@ public:
     hitable **list;
     int list_size;
 };
-/* 一系列物体
-如果碰到任何物体则更新碰到的最近的物体
-返回是否碰到任何物体
-碰撞记录通过引用返回*/
 
 bool hitable_list::hit(const ray& r, float t_min, float t_max, hit_record& rec) const {
     hit_record temp_rec;

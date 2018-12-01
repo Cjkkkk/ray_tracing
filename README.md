@@ -80,7 +80,7 @@ before: 1/nx 2/nx 3/nx ...
 after: 1/nx can be average by (1.1/nx + 1.2/nx + ...) / ns
 
 
-## 7 material 材质
+## 7 material 材质 漫反射
 mix material and geometry or separate ?
 
 start with separate
@@ -100,3 +100,18 @@ choice
 
 
 albedo 反射率
+
+## 8 Metal 镜面反射
+## 9 Dielectrics
+透明物体比如 水 玻璃 钻石是电解质
+当光线穿过的时候分成反射和折射两种光线
+
+方法 随机在反射和折射中选择一种 这样就不用追踪两种光线
+
+snell law折射定律
+nsin(theta) = n'sin(theta')
+一般来说空气折射率为1 玻璃为1.3-1.7 钻石为2.4
+
+问题 完全内反射
+
+ps attenuation == 1 因为透明材料不吸收能量
