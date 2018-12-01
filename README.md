@@ -86,3 +86,9 @@ mix material and geometry or separate ?
 start with separate
 
 diffuse material
+
+absorb light
+
+approximate Lambertian
+
+gamma corrected
