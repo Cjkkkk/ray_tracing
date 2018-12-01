@@ -1,0 +1,8 @@
+//
+// Created by DELL on 2018/12/1.
+//
+
+#ifndef RAY_TRACING_MATERIAL_H
+#define RAY_TRACING_MATERIAL_H
+
+#endif //RAY_TRACING_MATERIAL_H
