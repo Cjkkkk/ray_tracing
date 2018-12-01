@@ -68,3 +68,9 @@ hitable_list: public hitable
 ```
 
 ## anti aliasing 抗锯齿
+
+average samples in one pixel
+
+before: 1/nx 2/nx 3/nx ...
+
+after: 1/nx can be average by (1.1/nx + 1.2/nx + ...) / ns
