@@ -10,22 +10,22 @@ struct hit_record;
 #include "ray.h"
 #include "hitable.h"
 
-
+// 让折射率随着角度的变化而变化
 float schlick(float cosine, float ref_idx) {
     float r0 = (1-ref_idx) / (1+ref_idx);
     r0 = r0*r0;
     return r0 + (1-r0)*pow((1 - cosine),5);
 }
 
+// 返回是否会折射出去 因为从玻璃内部向外部折射的时候 出射的角度的正弦^2 = n^2 * 入射角的正弦^2 可能大于1 此时无法折射出去
 bool refract(const vec3& v, const vec3& n, float ni_over_nt, vec3& refracted) {
     vec3 uv = unit_vector(v);
-    float dt = dot(uv, n);
+    float dt = dot(uv, n);//得到cos
     float discriminant = 1.0 - ni_over_nt*ni_over_nt*(1-dt*dt);
     if (discriminant > 0) {
         refracted = ni_over_nt*(uv - n*dt) - n*sqrt(discriminant);
         return true;
-    }
-    else
+    }else
         return false;
 }
 
@@ -86,10 +86,10 @@ public:
         vec3 refracted;
         float reflect_prob;
         float cosine;
+        // 从玻璃射出时候二者同向
         if (dot(r_in.direction(), rec.normal) > 0) {
             outward_normal = -rec.normal;
-            ni_over_nt = ref_idx;
-            //         cosine = ref_idx * dot(r_in.direction(), rec.normal) / r_in.direction().length();
+            ni_over_nt = ref_idx; // 入射材质与折射材质的反射率之比
             cosine = dot(r_in.direction(), rec.normal) / r_in.direction().length();
             cosine = sqrt(1 - ref_idx*ref_idx*(1-cosine*cosine));
         }

@@ -115,3 +115,11 @@ nsin(theta) = n'sin(theta')
 问题 完全内反射
 
 ps attenuation == 1 因为透明材料不吸收能量
+
+扩展
+玻璃的折射率随着角度的变化而发生变化
+Christophe Schlick的一个多项式近似
+
+## 10 camera
+field of view
+
