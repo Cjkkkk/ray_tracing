@@ -138,3 +138,14 @@ lookat 即看向哪里
 
 得到lookfrom与lookat练成的向量(a,b,c)
 首先得到与它垂直的向量(-b,-a,0)
+
+## defocus Blur
+all photographers call it depth of field
+景深
+
+现实中产生景深的原因是相机需要大的hole来收集光线
+
+aperture
+
+无需模拟film - lens - focus plane的结构
+直接可以把film lens合成lens plane
