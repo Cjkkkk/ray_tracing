@@ -139,7 +139,7 @@ lookat 即看向哪里
 得到lookfrom与lookat练成的向量(a,b,c)
 首先得到与它垂直的向量(-b,-a,0)
 
-## defocus Blur
+## 11 defocus Blur
 all photographers call it depth of field
 景深
 
