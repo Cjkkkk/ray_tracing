@@ -180,10 +180,12 @@ ray-object intersection检测是ray tracer中的主要时间瓶颈
 volume. 那么所有没有射中bounding volume的光线一定不会射中他包住的10个物体. 如果射中了bounding volume,那么才有可能射中10个中的一个.
 ray object intersection的一般形式
 
+```
 if (ray hits bounding object)
     return whether ray hits bounded objects
 else
     return false
+```
 
 需要明确的是我们在划分object到subset并没有在划分空间
 
