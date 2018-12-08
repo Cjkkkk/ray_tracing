@@ -149,3 +149,50 @@ aperture
 
 无需模拟film - lens - focus plane的结构
 直接可以把film lens合成lens plane
+
+# next week
+hardest part BVH/ Perlin textures
+
+all effects can be brute-forced
+
+## 12 Motion blur
+形成原因: 在真实的相机中, 快门打开之后会维持一段时间的打开状态
+这个时候相机或者物体会保持运动
+
+我们可以让相机在这个运动过程中取一个平均值作为我们的视觉效果
+
+获取到到的每一个ray是在一个时间段内random生成的
+比如[1,10]这个时间段
+则所有的ray可以是[1,10]中的任意时刻射出
+
+## 13 Bounding Volume Hierarchies
+ray-object intersection检测是ray tracer中的主要时间瓶颈
+
+在相同的模型上有许多的重复搜索,应该可以使用二分搜索变为对数时间
+
+将模型分类然后将每一此ray-object intersection变为sublinear search
+
+如何对模型分类?
+* 空间上分类(divide the space)
+* 物体分类(divide the object) easy to code up
+
+核心思想是用一个bounding volume来包住一堆的object来找到一个能完全包住所有object的bounding volume. 比如你已经有一个包住10个object的bounding
+volume. 那么所有没有射中bounding volume的光线一定不会射中他包住的10个物体. 如果射中了bounding volume,那么才有可能射中10个中的一个.
+ray object intersection的一般形式
+
+if (ray hits bounding object)
+    return whether ray hits bounded objects
+else
+    return false
+
+需要明确的是我们在划分object到subset并没有在划分空间
+
+一个物体只能在一个bounding volume 但是bounding volume可以重叠
+
+为了使得搜索是子线性(sub-linear)的,我们需要使得bounding volume层级关系,也可以说是树状态
+            A
+           / \
+          B   C
+         / \ / \
+        D  E F  G
+       如果射中了A则可能射中了B或者C,如果射中了B则可能会射中D或者E ...

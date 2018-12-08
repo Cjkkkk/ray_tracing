@@ -111,44 +111,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named ray_tracing
+# Target rules for targets named main.cpp
 
 # Build rule for target.
-ray_tracing: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 ray_tracing
-.PHONY : ray_tracing
+main.cpp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 main.cpp
+.PHONY : main.cpp
 
 # fast build rule for target.
-ray_tracing/fast:
-	$(MAKE) -f CMakeFiles/ray_tracing.dir/build.make CMakeFiles/ray_tracing.dir/build
-.PHONY : ray_tracing/fast
-
-main.o: main.cpp.o
-
-.PHONY : main.o
-
-# target to build an object file
-main.cpp.o:
-	$(MAKE) -f CMakeFiles/ray_tracing.dir/build.make CMakeFiles/ray_tracing.dir/main.cpp.o
-.PHONY : main.cpp.o
-
-main.i: main.cpp.i
-
-.PHONY : main.i
-
-# target to preprocess a source file
-main.cpp.i:
-	$(MAKE) -f CMakeFiles/ray_tracing.dir/build.make CMakeFiles/ray_tracing.dir/main.cpp.i
-.PHONY : main.cpp.i
-
-main.s: main.cpp.s
-
-.PHONY : main.s
-
-# target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) -f CMakeFiles/ray_tracing.dir/build.make CMakeFiles/ray_tracing.dir/main.cpp.s
-.PHONY : main.cpp.s
+main.cpp/fast:
+	$(MAKE) -f CMakeFiles/main.cpp.dir/build.make CMakeFiles/main.cpp.dir/build
+.PHONY : main.cpp/fast
 
 # Help Target
 help:
@@ -158,10 +131,7 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... ray_tracing"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... main.cpp"
 .PHONY : help
 
 
