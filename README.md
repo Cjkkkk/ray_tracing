@@ -191,8 +191,13 @@ else
 
 为了使得搜索是子线性(sub-linear)的,我们需要使得bounding volume层级关系,也可以说是树状态
             A
+
            / \
+
           B   C
+
          / \ / \
+
         D  E F  G
+
        如果射中了A则可能射中了B或者C,如果射中了B则可能会射中D或者E ...
