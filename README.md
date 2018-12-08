@@ -192,6 +192,7 @@ else
 一个物体只能在一个bounding volume 但是bounding volume可以重叠
 
 为了使得搜索是子线性(sub-linear)的,我们需要使得bounding volume层级关系,也可以说是树状态
+
             A
 
            / \
