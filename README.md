@@ -36,8 +36,11 @@ p(t) = A + B * t
 图中的长方形规定了ray的出射范围
 
 ## 4 add sphere
-中心center C 半径radius R
+### 4.1 组成
+* 中心center C
+* 半径radius R
 
+### 4.2 计算光线是否碰到球体
 设球上任何一点 P,以及射线ray = A + B * t,半径radius = r
 
 则有等式dot(P - C, P - C) = r * r
@@ -77,16 +80,15 @@ hitable_list: public hitable
 
 
 ## 7 material 材质 diffuse 漫反射
-choice: 将材质和几何分离
+### 7.1 设计choice
+将材质和几何分离
 
-diffuse material(lambertian)
-
-特性
+### 7.2 diffuse material(lambertian) 特性
 * 不会发射光线
 * 吸收入射光线(衰减)
 * 随机方向反射
 
-gamma矫正 gamma corrected
+### 7.3 gamma矫正(gamma corrected)
 原因: 韦伯定理 
 人眼的线性感知与自然界刺激的线性变化是不一致的
 比如在黑暗房间内点亮一根蜡烛可以感受到明显的亮度的变化
@@ -97,57 +99,68 @@ gamma矫正 gamma corrected
 albedo 反射率
 
 ## 8 Metal 镜面反射
-特性
+### 8.1 特性
 * 镜面反射
 * 吸收能量
 
 ## 9 Dielectrics 电解质
 透明物体比如 水 玻璃 钻石是电解质
-特性
+### 9.1 特性
 * 当光线穿过的时候分成反射和折射两种光线
 * attenuation == 1 因为透明材料不吸收能量
 
-模拟方法
+### 9.2 模拟方法
 * 随机在反射和折射中选择一种 这样就不用追踪两种光线
 * 在发生全发射的时候一定选择反射
 
-snell law折射定律
+### 9.3 snell law折射定律
 `nsin(theta) = n'sin(theta')`
 一般来说空气折射率为1 玻璃为1.3-1.7 钻石为2.4
 
-扩展
+### 9.4 扩展
 玻璃的折射率随着角度的变化而发生变化
 Christophe Schlick的一个多项式近似
 
 ## 10 camera
-组成
+相机不一定在原点
+### 10.1 组成
 * fov field of view 视野角度即原点为起点，在y方向长成的角度
 * aspect 长宽比
+* lookfrom 即从那里看
+* lookat 即看向哪里
+* 相机绕着 lookfrom-lookat 轴的旋转角度 upvector
 最后得到ray扫描的范围
 
-扩展相机
-=> 不一定在原点
+### 10.2 理解upvector
 
-需要有
-lookfrom 即从那里看
-lookat 即看向哪里
-以及相机绕着 lookfrom-lookat 轴的旋转角度 upvector
 可以理解为即使一个人正对着对面的物体，也有倒立看和躺着看的情况，这里人的位置就是lookfrom
 观察对象的位置就是lookat，可以看到即使两点确定，仍然有多种观看方式，所以需要锁定up vector
 
-得到lookfrom与lookat练成的向量(a,b,c)
-首先得到与它垂直的向量(-b,-a,0)
 
-## 11 defocus Blur
-all photographers call it depth of field
-景深
+### 10.3 如何获得相机坐标系坐标轴
 
-现实中产生景深的原因是相机需要大的hole来收集光线
+得到lookfrom与lookat连成的向量w
+然后用叉乘得到与w和vup垂直的向量u
+最后用叉乘得到与w和u垂直的向量v
 
-aperture
+## 11 defocus Blur (depth of field)
+all photographers call it depth of field 景深
 
-无需模拟film - lens - focus plane的结构
-直接可以把film lens合成lens plane
+### 11.1 现实中产生景深的原因是
+* 透镜只能聚焦一定距离的光线
+* 超过这个距离会产生弥散圆, 弥散圆的半径在一定范围内是人眼无法察觉的
+
+在产生人眼无法识别的弥散圆距离的范围是景深
+
+### 11.2 影响因素
+模型图[待补充]
+
+因此景深和光圈和焦距有关系
+
+### 11.3 模拟方法
+模型图[待补充]
+* 将lookfrom从一个点变化到一个圆平面,即光线不再是从一个点射出而是从一个圆平面射出的
+* 同时无需模拟相机内部,只需要一个virtual film plane,将光线从virtual film plane射出即可
 
 # next week
 hardest part BVH/ Perlin textures
