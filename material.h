@@ -18,6 +18,7 @@ float schlick(float cosine, float ref_idx) {
 }
 
 // 返回是否会折射出去 因为从玻璃内部向外部折射的时候 出射的角度的正弦^2 = n^2 * 入射角的正弦^2 可能大于1 此时无法折射出去
+// ni_over_nt is n / n'
 bool refract(const vec3& v, const vec3& n, float ni_over_nt, vec3& refracted) {
     vec3 uv = unit_vector(v);
     float dt = dot(uv, n);//得到cos
@@ -102,6 +103,7 @@ public:
             reflect_prob = schlick(cosine, ref_idx);
         else
             reflect_prob = 1.0;
+        // 如果为全反射则为反射光线 否则随即反射或者折射
         if (drand48() < reflect_prob)
             scattered = ray(rec.p, reflected, r_in.time());
         else
