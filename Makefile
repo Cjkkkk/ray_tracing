@@ -69,8 +69,8 @@ rebuild_cache/fast: rebuild_cache
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/opt/clion-2018.2.6/bin/cmake/linux/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/opt/clion-2018.2.6/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -111,17 +111,44 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named main.cpp
+# Target rules for targets named ray_tracing
 
 # Build rule for target.
-main.cpp: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 main.cpp
-.PHONY : main.cpp
+ray_tracing: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ray_tracing
+.PHONY : ray_tracing
 
 # fast build rule for target.
-main.cpp/fast:
-	$(MAKE) -f CMakeFiles/main.cpp.dir/build.make CMakeFiles/main.cpp.dir/build
-.PHONY : main.cpp/fast
+ray_tracing/fast:
+	$(MAKE) -f CMakeFiles/ray_tracing.dir/build.make CMakeFiles/ray_tracing.dir/build
+.PHONY : ray_tracing/fast
+
+main.o: main.cpp.o
+
+.PHONY : main.o
+
+# target to build an object file
+main.cpp.o:
+	$(MAKE) -f CMakeFiles/ray_tracing.dir/build.make CMakeFiles/ray_tracing.dir/main.cpp.o
+.PHONY : main.cpp.o
+
+main.i: main.cpp.i
+
+.PHONY : main.i
+
+# target to preprocess a source file
+main.cpp.i:
+	$(MAKE) -f CMakeFiles/ray_tracing.dir/build.make CMakeFiles/ray_tracing.dir/main.cpp.i
+.PHONY : main.cpp.i
+
+main.s: main.cpp.s
+
+.PHONY : main.s
+
+# target to generate assembly for a file
+main.cpp.s:
+	$(MAKE) -f CMakeFiles/ray_tracing.dir/build.make CMakeFiles/ray_tracing.dir/main.cpp.s
+.PHONY : main.cpp.s
 
 # Help Target
 help:
@@ -131,7 +158,10 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... main.cpp"
+	@echo "... ray_tracing"
+	@echo "... main.o"
+	@echo "... main.i"
+	@echo "... main.s"
 .PHONY : help
 
 

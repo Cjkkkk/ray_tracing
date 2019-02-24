@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="ray_tracing"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/kk/ray_tracing"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/kk/ray_tracing"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/kk/ray_tracing"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="ray_tracing">
+				<Option output="/home/kk/ray_tracing/ray_tracing" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kk/ray_tracing"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 ray_tracing"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="ray_tracing/fast">
+				<Option output="/home/kk/ray_tracing/ray_tracing" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kk/ray_tracing"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 ray_tracing/fast"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/kk/ray_tracing/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/kk/ray_tracing/camera.h">
+			<Option target="ray_tracing"/>
+		</Unit>
+		<Unit filename="/home/kk/ray_tracing/hitable.h">
+			<Option target="ray_tracing"/>
+		</Unit>
+		<Unit filename="/home/kk/ray_tracing/hitablelist.h">
+			<Option target="ray_tracing"/>
+		</Unit>
+		<Unit filename="/home/kk/ray_tracing/main.cpp">
+			<Option target="ray_tracing"/>
+		</Unit>
+		<Unit filename="/home/kk/ray_tracing/material.h">
+			<Option target="ray_tracing"/>
+		</Unit>
+		<Unit filename="/home/kk/ray_tracing/ray.h">
+			<Option target="ray_tracing"/>
+		</Unit>
+		<Unit filename="/home/kk/ray_tracing/sphere.h">
+			<Option target="ray_tracing"/>
+		</Unit>
+		<Unit filename="/home/kk/ray_tracing/vec3.h">
+			<Option target="ray_tracing"/>
+		</Unit>
+		<Unit filename="/home/kk/ray_tracing/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
