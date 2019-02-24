@@ -87,6 +87,7 @@ public:
         vec3 refracted;
         float reflect_prob;
         float cosine;
+        // 判断光线是从高折射到低折射还是相反
         // 从玻璃射出时候二者同向
         if (dot(r_in.direction(), rec.normal) > 0) {
             outward_normal = -rec.normal;
@@ -94,11 +95,13 @@ public:
             cosine = dot(r_in.direction(), rec.normal) / r_in.direction().length();
             cosine = sqrt(1 - ref_idx*ref_idx*(1-cosine*cosine));
         }
+        // 从空气射向玻璃
         else {
             outward_normal = rec.normal;
             ni_over_nt = 1.0 / ref_idx;
             cosine = -dot(r_in.direction(), rec.normal) / r_in.direction().length();
         }
+        // 判断是否发生全反射
         if (refract(r_in.direction(), outward_normal, ni_over_nt, refracted))
             reflect_prob = schlick(cosine, ref_idx);
         else
