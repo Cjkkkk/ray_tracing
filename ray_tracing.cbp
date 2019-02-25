@@ -66,6 +66,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/home/kk/ray_tracing/bvh_node.h">
+			<Option target="ray_tracing"/>
+		</Unit>
 		<Unit filename="/home/kk/ray_tracing/camera.h">
 			<Option target="ray_tracing"/>
 		</Unit>
@@ -85,6 +88,9 @@
 			<Option target="ray_tracing"/>
 		</Unit>
 		<Unit filename="/home/kk/ray_tracing/sphere.h">
+			<Option target="ray_tracing"/>
+		</Unit>
+		<Unit filename="/home/kk/ray_tracing/texture.h">
 			<Option target="ray_tracing"/>
 		</Unit>
 		<Unit filename="/home/kk/ray_tracing/vec3.h">
