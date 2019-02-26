@@ -6,7 +6,7 @@
 #define RAY_TRACING_CAMERA_H
 
 #include "ray.h"
-
+#include "s_random.h"
 vec3 random_in_unit_disk(){
     vec3 p;
     do {

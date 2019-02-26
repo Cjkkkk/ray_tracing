@@ -1,14 +1,15 @@
 #include <iostream>
+#include <limits>
 #include "sphere.h"
 #include "hitablelist.h"
-#include "float.h"
 #include "camera.h"
 #include "material.h"
 #include "texture.h"
+#include "s_random.h"
 
 vec3 color(const ray& r, hitable *world, int depth) {
     hit_record rec;
-    if (world->hit(r, 0.001, MAXFLOAT, rec)) {
+    if (world->hit(r, 0.001, std::numeric_limits<float>::max(), rec)) {
         ray scattered;
         vec3 attenuation;
         if (depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
@@ -48,13 +49,13 @@ hitable* random_scene(){
     }
     list[i++] = new sphere(vec3(0,1,0), 1.0, new dielectric(1.5));
     list[i++] = new sphere(vec3(-4,1,0), 1.0, new lambertian(new const_texture(vec3(0.4,0.2,0.1))));
-    list[i++] = new sphere(vec3(4,1,0),1.0, new metal(vec3(0.7,0.6,0.5), 0.0));
+    list[i++] = new sphere(vec3(4,1,0),1.0, new metal(vec3(0.7,0.6,0.6), 0.0));
     return new hitable_list(list, i);
 }
 int main() {
-    int nx = 400;
-    int ny = 200;
-    int ns = 20;
+    int nx = 200;
+    int ny = 100;
+    int ns = 5;
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";
 //    hitable *list[4];
 //    list[0] = new sphere(vec3(0,0,-1), 0.5, new lambertian(vec3(0.1, 0.2, 0.5)));
@@ -63,7 +64,12 @@ int main() {
     //list[3] = new sphere(vec3(-1,0,-1), 0.5, new metal(vec3(0.8, 0.8, 0.8), 0.0));
 //    list[3] = new sphere(vec3(-1,0,-1), 0.5, new dielectric(1.5));
     //hitable *world = new hitable_list(list,4);
-    hitable* world = random_scene();
+    //hitable* world = random_scene();
+    hitable *list[1];
+    texture *checker = new checker_texture(new const_texture(vec3(0, 0, 0)), new const_texture(vec3(1, 1, 1)));
+    texture *noise_t = new noise_texture();
+    list[0] = new sphere(vec3(0, -100, 0), 100, new lambertian(noise_t));
+    hitable* world = new hitable_list(list, 1);
     vec3 lookfrom = vec3(13, 2, 3);
     vec3 lookat = vec3(0, 0, 0);
     float dist_to_focus = (lookfrom - lookat).length();
