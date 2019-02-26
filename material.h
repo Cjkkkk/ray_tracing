@@ -9,6 +9,7 @@ struct hit_record;
 
 #include "ray.h"
 #include "hitable.h"
+#include "texture.h"
 
 // 让折射率随着角度的变化而变化
 float schlick(float cosine, float ref_idx) {
@@ -18,6 +19,7 @@ float schlick(float cosine, float ref_idx) {
 }
 
 // 返回是否会折射出去 因为从玻璃内部向外部折射的时候 出射的角度的正弦^2 = n^2 * 入射角的正弦^2 可能大于1 此时无法折射出去
+// ni_over_nt is n / n'
 bool refract(const vec3& v, const vec3& n, float ni_over_nt, vec3& refracted) {
     vec3 uv = unit_vector(v);
     float dt = dot(uv, n);//得到cos
@@ -51,15 +53,15 @@ public:
 
 class lambertian : public material {
 public:
-    lambertian(const vec3& a) : albedo(a) {}
+    lambertian(texture* a) : albedo(a) {}
     virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const  {
         vec3 target = rec.p + rec.normal + random_in_unit_sphere();
         scattered = ray(rec.p, target-rec.p, r_in.time());
-        attenuation = albedo;
+        attenuation = albedo->value(0, 0, rec.p);
         return true;
     }
 
-    vec3 albedo;
+    texture *albedo;
 };
 
 class metal : public material {
@@ -86,6 +88,7 @@ public:
         vec3 refracted;
         float reflect_prob;
         float cosine;
+        // 判断光线是从高折射到低折射还是相反
         // 从玻璃射出时候二者同向
         if (dot(r_in.direction(), rec.normal) > 0) {
             outward_normal = -rec.normal;
@@ -93,15 +96,18 @@ public:
             cosine = dot(r_in.direction(), rec.normal) / r_in.direction().length();
             cosine = sqrt(1 - ref_idx*ref_idx*(1-cosine*cosine));
         }
+        // 从空气射向玻璃
         else {
             outward_normal = rec.normal;
             ni_over_nt = 1.0 / ref_idx;
             cosine = -dot(r_in.direction(), rec.normal) / r_in.direction().length();
         }
+        // 判断是否发生全反射
         if (refract(r_in.direction(), outward_normal, ni_over_nt, refracted))
             reflect_prob = schlick(cosine, ref_idx);
         else
             reflect_prob = 1.0;
+        // 如果为全反射则为反射光线 否则随即反射或者折射
         if (drand48() < reflect_prob)
             scattered = ray(rec.p, reflected, r_in.time());
         else

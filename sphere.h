@@ -12,6 +12,7 @@ public:
     sphere() {}
     sphere(vec3 cen, float r, material *m) : center(cen), radius(r), mat_ptr(m)  {};
     virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const;
+    virtual bool bounding_box(float t0, float t1, aabb& box) const;
     vec3 center;
     float radius;
     material *mat_ptr;
@@ -28,6 +29,8 @@ public:
     center0(cen0), center1(cen1), time0(t0), time1(t1), radius(r), mat_ptr(m) {};
     virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const;
     vec3 center(float time) const;
+    virtual bool bounding_box(float t0, float t1, aabb& box) const;
+
     float time0, time1, radius;
     vec3 center0, center1;
     material* mat_ptr;
@@ -64,6 +67,12 @@ bool moving_sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec)
     return false;
 }
 
+bool moving_sphere :: bounding_box(float t0, float t1, aabb& box) const {
+    aabb box0 = aabb( center(t0) - vec3(radius, radius, radius), center(t0) + vec3(radius, radius, radius));
+    aabb box1 = aabb( center(t1) - vec3(radius, radius, radius), center(t1) + vec3(radius, radius, radius));
+    box = surrounding_box(box0, box1);
+    return true;
+}
 bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const {
     vec3 oc = r.origin() - center;
     float a = dot(r.direction(), r.direction());
@@ -89,6 +98,11 @@ bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const 
         }
     }
     return false;
+}
+
+bool sphere :: bounding_box(float t0, float t1, aabb& box) const {
+    box = aabb( center - vec3(radius, radius, radius), center + vec3(radius, radius, radius));
+    return true;
 }
 #endif //RAY_TRACING_SPHERE_H
 

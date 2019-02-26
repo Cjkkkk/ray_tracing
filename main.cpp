@@ -4,6 +4,7 @@
 #include "float.h"
 #include "camera.h"
 #include "material.h"
+#include "texture.h"
 
 vec3 color(const ray& r, hitable *world, int depth) {
     hit_record rec;
@@ -26,7 +27,8 @@ vec3 color(const ray& r, hitable *world, int depth) {
 hitable* random_scene(){
     int n = 500;
     hitable **list = new hitable* [n+1];
-    list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(vec3(0.5, 0.5, 0.5)));
+    texture *checker = new checker_texture(new const_texture(vec3(0.2, 0.3, 0.1)), new const_texture(vec3(0.9, 0.9, 0.9)));
+    list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(checker));
     int i = 1;
     for(int a = -11; a < 11 ; a++){
         for(int b = -11 ; b < 11 ; b++){
@@ -35,7 +37,7 @@ hitable* random_scene(){
             if((center - vec3(4,0.2,0)).length() > 0.9){
                 if(choose_mat < 0.8){
                     list[i++] = new moving_sphere(center, center + vec3(0, 0.5*drand48(), 0), 0.0, 1.0, 0.2,
-                            new lambertian(vec3(drand48()*drand48(),drand48()* drand48(), drand48()*drand48())));
+                            new lambertian(new const_texture(vec3(drand48()*drand48(),drand48()* drand48(), drand48()*drand48()))));
                 }else if(choose_mat < 0.95){
                     list[i++] = new sphere(center, 0.2, new metal(vec3(0.5*(1+drand48()), 0.5*(1+drand48()),0.5*(1+drand48())), 0.5*drand48()));
                 }else{
@@ -45,7 +47,7 @@ hitable* random_scene(){
         }
     }
     list[i++] = new sphere(vec3(0,1,0), 1.0, new dielectric(1.5));
-    list[i++] = new sphere(vec3(-4,1,0), 1.0, new lambertian(vec3(0.4,0.2,0.1)));
+    list[i++] = new sphere(vec3(-4,1,0), 1.0, new lambertian(new const_texture(vec3(0.4,0.2,0.1))));
     list[i++] = new sphere(vec3(4,1,0),1.0, new metal(vec3(0.7,0.6,0.5), 0.0));
     return new hitable_list(list, i);
 }
@@ -66,7 +68,7 @@ int main() {
     vec3 lookat = vec3(0, 0, 0);
     float dist_to_focus = (lookfrom - lookat).length();
     float aperture = 0;
-    camera cam(lookfrom, lookat, vec3(0,1,0), 20, float(nx) / float(ny), aperture, dist_to_focus, 0.0, 1.0);
+    camera cam(lookfrom, lookat, vec3(0,1,0), 20, float(nx) / float(ny), aperture, dist_to_focus, 0.0, 0.0);
 
     for (int j = ny-1; j >= 0; j--) {
         for (int i = 0; i < nx; i++) {

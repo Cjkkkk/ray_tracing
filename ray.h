@@ -16,6 +16,7 @@ public:
     vec3 direction() const    { return B; }
     vec3 point_at_parameter(float t) const { return A + t*B; }
     float time() const { return _time;}
+
     vec3 A;
     vec3 B;
     float _time;
