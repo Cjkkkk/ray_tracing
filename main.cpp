@@ -1,12 +1,14 @@
 #include <iostream>
 #include <limits>
 #include "sphere.h"
+#include "moving_sphere.h"
 #include "hitablelist.h"
 #include "camera.h"
 #include "material.h"
 #include "texture.h"
 #include "s_random.h"
-
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 vec3 color(const ray& r, hitable *world, int depth) {
     hit_record rec;
     if (world->hit(r, 0.001, std::numeric_limits<float>::max(), rec)) {
@@ -52,9 +54,18 @@ hitable* random_scene(){
     list[i++] = new sphere(vec3(4,1,0),1.0, new metal(vec3(0.7,0.6,0.6), 0.0));
     return new hitable_list(list, i);
 }
+
+hitable *earth() {
+    int nx, ny, nn;
+    //unsigned char *tex_data = stbi_load("tiled.jpg", &nx, &ny, &nn, 0);
+    unsigned char *tex_data = stbi_load("earthmap1k.jpg", &nx, &ny, &nn, 0);
+    material *mat =  new lambertian(new image_texture(tex_data, nx, ny));
+    return new sphere(vec3(0,0, 0), 2, mat);
+}
+
 int main() {
-    int nx = 200;
-    int ny = 100;
+    int nx = 400;
+    int ny = 200;
     int ns = 5;
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";
 //    hitable *list[4];
@@ -68,9 +79,10 @@ int main() {
     hitable *list[1];
     texture *checker = new checker_texture(new const_texture(vec3(0, 0, 0)), new const_texture(vec3(1, 1, 1)));
     texture *noise_t = new noise_texture();
-    list[0] = new sphere(vec3(0, -100, 0), 100, new lambertian(noise_t));
+//    list[0] = new sphere(vec3(0, -100, 0), 100, new lambertian(noise_t));
+    list[0] = earth();
     hitable* world = new hitable_list(list, 1);
-    vec3 lookfrom = vec3(13, 2, 3);
+    vec3 lookfrom = vec3(15, 12, 13);
     vec3 lookat = vec3(0, 0, 0);
     float dist_to_focus = (lookfrom - lookat).length();
     float aperture = 0;
