@@ -5,7 +5,7 @@
 #ifndef RAY_TRACING_BVH_NODE_H
 #define RAY_TRACING_BVH_NODE_H
 
-#include "hitable.h"
+#include "Geometry/hitable.h"
 
 class bvh_node : public hitable {
 public:

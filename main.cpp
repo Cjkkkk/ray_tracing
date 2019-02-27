@@ -1,31 +1,42 @@
 #include <iostream>
 #include <limits>
-#include "sphere.h"
-#include "moving_sphere.h"
-#include "hitablelist.h"
+#include "Geometry/sphere.h"
+#include "Geometry/moving_sphere.h"
+#include "Geometry/hitablelist.h"
 #include "camera.h"
-#include "material.h"
-#include "texture.h"
+#include "Material/material.h"
+#include "Material/texture.h"
 #include "s_random.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "Material/stb_image.h"
+#include "Material/diffuse_light.h"
+#include "Geometry/rectangle.h"
 vec3 color(const ray& r, hitable *world, int depth) {
     hit_record rec;
     if (world->hit(r, 0.001, std::numeric_limits<float>::max(), rec)) {
         ray scattered;
         vec3 attenuation;
+        vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
         if (depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
-            return attenuation*color(scattered, world, depth+1);
+            return emitted + attenuation*color(scattered, world, depth+1);
         }
         else {
-            return vec3(0,0,0);
+            return emitted;
         }
     }
     else {
-        vec3 unit_direction = unit_vector(r.direction());
-        float t = 0.5*(unit_direction.y() + 1.0);
-        return (1.0-t)*vec3(1.0, 1.0, 1.0) + t*vec3(0.5, 0.7, 1.0);
+        return vec3(0, 0, 0);
     }
+}
+
+hitable *simple_light(){
+    texture *pertex = new noise_texture(4);
+    hitable **list = new hitable*[4];
+    list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian( pertex ));
+    list[1] = new sphere(vec3(0, 2, 0), 2, new lambertian(pertex));
+    list[2] = new sphere(vec3(0, 7, 0), 2, new diffuse_light(new const_texture(vec3(1, 1, 1))));
+    list[3] = new xy_rect(3, 5, 1, 3, -2, new diffuse_light(new const_texture(vec3(1, 1, 1))));
+    return new hitable_list(list, 4);
 }
 hitable* random_scene(){
     int n = 500;
@@ -60,13 +71,13 @@ hitable *earth() {
     //unsigned char *tex_data = stbi_load("tiled.jpg", &nx, &ny, &nn, 0);
     unsigned char *tex_data = stbi_load("earthmap1k.jpg", &nx, &ny, &nn, 0);
     material *mat =  new lambertian(new image_texture(tex_data, nx, ny));
-    return new sphere(vec3(0,0, 0), 2, mat);
+    return new sphere(vec3(0, 3, 0), 2, mat);
 }
 
 int main() {
-    int nx = 400;
-    int ny = 200;
-    int ns = 5;
+    int nx = 2000;
+    int ny = 1000;
+    int ns = 10;
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";
 //    hitable *list[4];
 //    list[0] = new sphere(vec3(0,0,-1), 0.5, new lambertian(vec3(0.1, 0.2, 0.5)));
@@ -76,14 +87,14 @@ int main() {
 //    list[3] = new sphere(vec3(-1,0,-1), 0.5, new dielectric(1.5));
     //hitable *world = new hitable_list(list,4);
     //hitable* world = random_scene();
-    hitable *list[1];
-    texture *checker = new checker_texture(new const_texture(vec3(0, 0, 0)), new const_texture(vec3(1, 1, 1)));
-    texture *noise_t = new noise_texture();
-//    list[0] = new sphere(vec3(0, -100, 0), 100, new lambertian(noise_t));
-    list[0] = earth();
-    hitable* world = new hitable_list(list, 1);
-    vec3 lookfrom = vec3(15, 12, 13);
-    vec3 lookat = vec3(0, 0, 0);
+//    hitable *list[2];
+//    texture *checker = new checker_texture(new const_texture(vec3(0, 0, 0)), new const_texture(vec3(1, 1, 1)));
+//    texture *noise_t = new noise_texture();
+//    list[0] = new sphere(vec3(0, 4, 0), 1, new diffuse_light(new const_texture(vec3(1, 1, 1))));
+//    list[1] = new sphere(vec3(0, -100, 0), 100, new lambertian(new const_texture(vec3(0.5, 0.6, 0.4))));
+    hitable* world = simple_light();
+    vec3 lookfrom = vec3(0, 12, 13);
+    vec3 lookat = vec3(0, 3, 0);
     float dist_to_focus = (lookfrom - lookat).length();
     float aperture = 0;
     camera cam(lookfrom, lookat, vec3(0,1,0), 20, float(nx) / float(ny), aperture, dist_to_focus, 0.0, 0.0);
