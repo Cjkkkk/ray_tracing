@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include "../vec3.h"
-#include "../s_random.h"
+#include "../Utils/s_random.h"
 
 inline float perlin_interp(vec3 c[2][2][2], float u, float v, float w) {
     float uu = u*u*(3-2*u);

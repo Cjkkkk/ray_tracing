@@ -10,7 +10,7 @@ struct hit_record;
 #include "../ray.h"
 #include "../Geometry/hitable.h"
 #include "texture.h"
-#include "../s_random.h"
+#include "../Utils/s_random.h"
 
 // 让折射率随着角度的变化而变化
 float schlick(float cosine, float ref_idx) {

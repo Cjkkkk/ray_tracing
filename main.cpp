@@ -6,9 +6,9 @@
 #include "camera.h"
 #include "Material/material.h"
 #include "Material/texture.h"
-#include "s_random.h"
+#include "Utils/s_random.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include "Material/stb_image.h"
+#include "Utils/stb_image.h"
 #include "Material/diffuse_light.h"
 #include "Geometry/rectangle.h"
 vec3 color(const ray& r, hitable *world, int depth) {
