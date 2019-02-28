@@ -11,6 +11,11 @@
 #include "Utils/stb_image.h"
 #include "Material/diffuse_light.h"
 #include "Geometry/rectangle.h"
+#include "Geometry/flip.h"
+#include "Geometry/box.h"
+#include "Geometry/rotate_y.h"
+#include "Geometry/translate.h"
+
 vec3 color(const ray& r, hitable *world, int depth) {
     hit_record rec;
     if (world->hit(r, 0.001, std::numeric_limits<float>::max(), rec)) {
@@ -28,7 +33,23 @@ vec3 color(const ray& r, hitable *world, int depth) {
         return vec3(0, 0, 0);
     }
 }
-
+hitable *cornel_box(){
+    hitable **list = new hitable*[8];
+    int i = 0;
+    material *red = new lambertian(new const_texture(vec3(0.65, 0.05, 0.05)));
+    material *white = new lambertian(new const_texture(vec3(0.73, 0.73, 0.73)));
+    material *green = new lambertian(new const_texture(vec3(0.12, 0.45, 0.15)));
+    material *light = new diffuse_light(new const_texture(vec3(15, 15, 15)));
+    list[i++] = new flip(new yz_rect(0, 555, 0, 555, 555 ,green));
+    list[i++] = new yz_rect(0, 555, 0, 555, 0, red);
+    list[i++] = new xz_rect(213, 343, 227, 332, 554, light);
+    list[i++] = new flip(new xz_rect(0, 555, 0, 555, 555, white));
+    list[i++] = new xz_rect(0, 555, 0, 555, 0, white);
+    list[i++] = new flip(new xy_rect(0, 555, 0, 555, 555, white));
+    list[i++] = new translate(new rotate_y(new box(vec3(0, 0 , 0), vec3(165, 165, 165), white), -18), vec3(130, 0, 65));
+    list[i++] = new translate(new rotate_y(new box(vec3(0, 0 , 0), vec3(165, 330, 165), white), 15), vec3(265, 0, 295));
+    return new hitable_list(list, i);
+}
 hitable *simple_light(){
     texture *pertex = new noise_texture(4);
     hitable **list = new hitable*[4];
@@ -68,43 +89,29 @@ hitable* random_scene(){
 
 hitable *earth() {
     int nx, ny, nn;
-    //unsigned char *tex_data = stbi_load("tiled.jpg", &nx, &ny, &nn, 0);
     unsigned char *tex_data = stbi_load("earthmap1k.jpg", &nx, &ny, &nn, 0);
     material *mat =  new lambertian(new image_texture(tex_data, nx, ny));
     return new sphere(vec3(0, 3, 0), 2, mat);
 }
 
 int main() {
-    int nx = 2000;
-    int ny = 1000;
-    int ns = 10;
+    int nx = 800;
+    int ny = 400;
+    int ns = 200;
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";
-//    hitable *list[4];
-//    list[0] = new sphere(vec3(0,0,-1), 0.5, new lambertian(vec3(0.1, 0.2, 0.5)));
-//    list[1] = new sphere(vec3(0,-100.5,-1), 100, new lambertian(vec3(0.8, 0.8, 0.0)));
-//    list[2] = new sphere(vec3(1,0,-1), 0.5, new metal(vec3(0.8, 0.6, 0.2), 0.0));
-    //list[3] = new sphere(vec3(-1,0,-1), 0.5, new metal(vec3(0.8, 0.8, 0.8), 0.0));
-//    list[3] = new sphere(vec3(-1,0,-1), 0.5, new dielectric(1.5));
-    //hitable *world = new hitable_list(list,4);
-    //hitable* world = random_scene();
-//    hitable *list[2];
-//    texture *checker = new checker_texture(new const_texture(vec3(0, 0, 0)), new const_texture(vec3(1, 1, 1)));
-//    texture *noise_t = new noise_texture();
-//    list[0] = new sphere(vec3(0, 4, 0), 1, new diffuse_light(new const_texture(vec3(1, 1, 1))));
-//    list[1] = new sphere(vec3(0, -100, 0), 100, new lambertian(new const_texture(vec3(0.5, 0.6, 0.4))));
-    hitable* world = simple_light();
-    vec3 lookfrom = vec3(0, 12, 13);
-    vec3 lookat = vec3(0, 3, 0);
-    float dist_to_focus = (lookfrom - lookat).length();
+    hitable* world = cornel_box();
+    vec3 lookfrom = vec3(278, 278, -800);
+    vec3 lookat = vec3(278, 278, 0);
+    float dist_to_focus = 10;
     float aperture = 0;
-    camera cam(lookfrom, lookat, vec3(0,1,0), 20, float(nx) / float(ny), aperture, dist_to_focus, 0.0, 0.0);
+    camera cam(lookfrom, lookat, vec3(0,1,0), 40, float(nx) / float(ny), aperture, dist_to_focus, 0.0, 1.0);
 
     for (int j = ny-1; j >= 0; j--) {
         for (int i = 0; i < nx; i++) {
             vec3 col(0, 0, 0);
             for (int s=0; s < ns; s++) {
-                float u = float(i + drand48()) / float(nx);
-                float v = float(j + drand48()) / float(ny);
+                float u = (i + drand48()) / float(nx);
+                float v = (j + drand48()) / float(ny);
                 ray r = cam.get_ray(u, v);
                 vec3 p = r.point_at_parameter(2.0);
                 col += color(r, world,0);
@@ -114,7 +121,7 @@ int main() {
             int ir = int(255.99*col[0]);
             int ig = int(255.99*col[1]);
             int ib = int(255.99*col[2]);
-            std::cout << ir << " " << ig << " " << ib << "\n";
+            std::cout << std::min(ir,255) << " " << std::min(ig,255) << " " << std::min(ib,255) << "\n";
         }
     }
 }
