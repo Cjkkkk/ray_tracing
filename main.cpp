@@ -24,13 +24,14 @@ vec3 color(const ray& r, hitable *world, int depth) {
         vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
         if (depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
             return emitted + attenuation*color(scattered, world, depth+1);
+            // 一般物体材质不发光 第一项为0 发光物体不散射 返回亮度
         }
         else {
             return emitted;
         }
     }
     else {
-        return vec3(0, 0, 0);
+        return vec3(0, 0, 0); // 环境光
     }
 }
 hitable *cornel_box(){
@@ -95,9 +96,9 @@ hitable *earth() {
 }
 
 int main() {
-    int nx = 800;
-    int ny = 400;
-    int ns = 200;
+    int nx = 2000;
+    int ny = 1000;
+    int ns = 1000;
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";
     hitable* world = cornel_box();
     vec3 lookfrom = vec3(278, 278, -800);
