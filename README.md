@@ -1,5 +1,5 @@
 # ray_tracing
-## chapter 1
+## 1 PPM
 ```
 PPM format
 P3
