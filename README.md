@@ -216,3 +216,54 @@ else
         D  E F  G
 
        如果射中了A则可能射中了B或者C,如果射中了B则可能会射中D或者E ...
+### 如何判断是否与box相交
+判断与左右两个面相碰撞的时间间隔(tx0, tx1)
+
+判断与上下两个面相碰撞的时间间隔(ty0, ty1)
+
+判断与前后两个面相碰撞的时间间隔(tz0, tz1)
+
+三个时间段重合则说明有相交
+
+
+## 14 texture
+u, v 映射到图片像素
+
+### 14.1 插值
+* 线性插值
+* hermit插值
+* perlin noise
+
+### 14.2 球体坐标映射u, v
+球体坐标(x, y, z) => (r, theta, phi)
+theta, phi 映射到 (0, 1)
+
+## 15 rectangles and light
+### 15.1 rectangles
+rectangle 认为是axis-aligned
+
+### 15.2 light
+引入新的材质diffuse_light
+
+#### 15.2.1 材质特性
+* no scatter
+* emit light
+
+#### 15.2.2 光模型
+环境光与物体发光
+
+即 emitted + attenuation * color(scatter_light)
+
+#### 15.2.3 几个feature?
+* subsurface scattering
+* BRDF
+
+## 16 cornel box
+## 17 instances
+translate 与 rotate
+
+核心思想
+* 不移动物体
+* 逆向移动ray
+
+
