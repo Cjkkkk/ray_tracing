@@ -9,7 +9,6 @@
 #include "Utils/s_random.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "Utils/stb_image.h"
-#include "Material/diffuse_light.h"
 #include "Geometry/rectangle.h"
 #include "Geometry/flip.h"
 #include "Geometry/box.h"
