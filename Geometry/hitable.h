@@ -60,6 +60,7 @@ aabb surrounding_box(aabb box0, aabb box1) {
             ffmax(box0.max().z(), box1.max().z()));
     return aabb(small, big);
 }
+
 class hitable  {
 public:
     virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const = 0;

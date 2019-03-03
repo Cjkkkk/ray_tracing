@@ -1,5 +1,7 @@
 #include <iostream>
 #include <limits>
+#include <fstream>
+#include <time.h>
 #include "Geometry/sphere.h"
 #include "Geometry/moving_sphere.h"
 #include "Geometry/hitablelist.h"
@@ -94,17 +96,23 @@ hitable *earth() {
     return new sphere(vec3(0, 3, 0), 2, mat);
 }
 
-int main() {
-    int nx = 2000;
-    int ny = 1000;
-    int ns = 1000;
-    std::cout << "P3\n" << nx << " " << ny << "\n255\n";
+int main(int argc, char** argv) {
+    if(argc != 2)std::cout << "please specify output filename" << std::endl;
+    std::ofstream outfile;
+    outfile.open(argv[1], std::ios::out);
+    int nx = 800;
+    int ny = 400;
+    int ns = 20;
+    outfile << "P3\n" << nx << " " << ny << "\n255\n";
     hitable* world = cornel_box();
     vec3 lookfrom = vec3(278, 278, -800);
     vec3 lookat = vec3(278, 278, 0);
     float dist_to_focus = 10;
     float aperture = 0;
     camera cam(lookfrom, lookat, vec3(0,1,0), 40, float(nx) / float(ny), aperture, dist_to_focus, 0.0, 1.0);
+
+    clock_t startTime,endTime;
+    startTime = clock();
 
     for (int j = ny-1; j >= 0; j--) {
         for (int i = 0; i < nx; i++) {
@@ -121,7 +129,11 @@ int main() {
             int ir = int(255.99*col[0]);
             int ig = int(255.99*col[1]);
             int ib = int(255.99*col[2]);
-            std::cout << std::min(ir,255) << " " << std::min(ig,255) << " " << std::min(ib,255) << "\n";
+            outfile << std::min(ir,255) << " " << std::min(ig,255) << " " << std::min(ib,255) << "\n";
         }
     }
+    endTime = clock();
+    std::cout << "Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
+    outfile.close();
+
 }
