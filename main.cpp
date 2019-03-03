@@ -16,6 +16,7 @@
 #include "Geometry/box.h"
 #include "Geometry/rotate_y.h"
 #include "Geometry/translate.h"
+#include "bvh_node.h"
 
 vec3 color(const ray& r, hitable *world, int depth) {
     hit_record rec;
@@ -32,7 +33,7 @@ vec3 color(const ray& r, hitable *world, int depth) {
         }
     }
     else {
-        return vec3(0, 0, 0); // 环境光
+        return vec3(1, 1, 1); // 环境光
     }
 }
 hitable *cornel_box(){
@@ -62,8 +63,8 @@ hitable *simple_light(){
     return new hitable_list(list, 4);
 }
 hitable* random_scene(){
-    int n = 500;
-    hitable **list = new hitable* [n+1];
+    int n = 487;
+    hitable **list = new hitable* [n];
     texture *checker = new checker_texture(new const_texture(vec3(0.2, 0.3, 0.1)), new const_texture(vec3(0.9, 0.9, 0.9)));
     list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(checker));
     int i = 1;
@@ -73,8 +74,9 @@ hitable* random_scene(){
             vec3 center(a+0.9*drand48(), 0.2, b+0.9*drand48());
             if((center - vec3(4,0.2,0)).length() > 0.9){
                 if(choose_mat < 0.8){
-                    list[i++] = new moving_sphere(center, center + vec3(0, 0.5*drand48(), 0), 0.0, 1.0, 0.2,
-                            new lambertian(new const_texture(vec3(drand48()*drand48(),drand48()* drand48(), drand48()*drand48()))));
+                    //list[i++] = new moving_sphere(center, center + vec3(0, 0.5*drand48(), 0), 0.0, 1.0, 0.2,
+                            //new lambertian(new const_texture(vec3(drand48()*drand48(),drand48()* drand48(), drand48()*drand48()))));
+                    list[i++] = new sphere(center, 0.2, new lambertian(new const_texture(vec3(drand48()*drand48(),drand48()* drand48(), drand48()*drand48()))));
                 }else if(choose_mat < 0.95){
                     list[i++] = new sphere(center, 0.2, new metal(vec3(0.5*(1+drand48()), 0.5*(1+drand48()),0.5*(1+drand48())), 0.5*drand48()));
                 }else{
@@ -86,7 +88,8 @@ hitable* random_scene(){
     list[i++] = new sphere(vec3(0,1,0), 1.0, new dielectric(1.5));
     list[i++] = new sphere(vec3(-4,1,0), 1.0, new lambertian(new const_texture(vec3(0.4,0.2,0.1))));
     list[i++] = new sphere(vec3(4,1,0),1.0, new metal(vec3(0.7,0.6,0.6), 0.0));
-    return new hitable_list(list, i);
+    //return new hitable_list(list, i);
+    return get_bvh_hier(list, n, 0.001, FLT_MAX);
 }
 
 hitable *earth() {
@@ -100,13 +103,15 @@ int main(int argc, char** argv) {
     if(argc != 2)std::cout << "please specify output filename" << std::endl;
     std::ofstream outfile;
     outfile.open(argv[1], std::ios::out);
-    int nx = 800;
-    int ny = 400;
-    int ns = 20;
+    int nx = 1000;
+    int ny = 500;
+    int ns = 100;
     outfile << "P3\n" << nx << " " << ny << "\n255\n";
-    hitable* world = cornel_box();
-    vec3 lookfrom = vec3(278, 278, -800);
-    vec3 lookat = vec3(278, 278, 0);
+    hitable* world = random_scene();
+//    vec3 lookfrom = vec3(278, 278, -800);
+//    vec3 lookat = vec3(278, 278, 0);
+    vec3 lookfrom = vec3(4, 4, 4);
+    vec3 lookat = vec3(0, 0, 0);
     float dist_to_focus = 10;
     float aperture = 0;
     camera cam(lookfrom, lookat, vec3(0,1,0), 40, float(nx) / float(ny), aperture, dist_to_focus, 0.0, 1.0);
