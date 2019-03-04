@@ -76,7 +76,7 @@
 class rotate_y : public hitable {
 public:
     rotate_y(hitable *p, float angle);
-    virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
+    virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) ;
     virtual bool bounding_box(float t0, float t1, aabb& box) const {
         box = bbox; return hasbox;}
     hitable *ptr;
@@ -115,7 +115,7 @@ rotate_y::rotate_y(hitable *p, float angle) : ptr(p) {
     bbox = aabb(min, max);
 }
 
-bool rotate_y::hit(const ray& r, float t_min, float t_max, hit_record& rec) const {
+bool rotate_y::hit(const ray& r, float t_min, float t_max, hit_record& rec) {
     vec3 origin = r.origin();
     vec3 direction = r.direction();
     origin[0] = cos_theta*r.origin()[0] - sin_theta*r.origin()[2];

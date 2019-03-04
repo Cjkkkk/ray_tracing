@@ -180,6 +180,8 @@ all effects can be brute-forced
 ## 13 Bounding Volume Hierarchies
 ray-object intersection检测是ray tracer中的主要时间瓶颈
 
+[参考链接](https://www.scratchapixel.com/lessons/advanced-rendering/introduction-acceleration-structure/bounding-volume-hierarchy-BVH-part2)
+
 在相同的模型上有许多的重复搜索,应该可以使用二分搜索变为对数时间
 
 将模型分类然后将每一此ray-object intersection变为sublinear search

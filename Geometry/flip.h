@@ -10,12 +10,12 @@
 class flip: public hitable{
 public:
     flip(hitable* _h): h(_h){}
-    virtual bool hit(const ray& r, float t0, float t1, hit_record& rec) const;
+    virtual bool hit(const ray& r, float t0, float t1, hit_record& rec);
     virtual bool bounding_box(float t0, float t1, aabb &box) const;
     hitable* h;
 };
 
-bool flip::hit(const ray &r, float t0, float t1, hit_record &rec) const {
+bool flip::hit(const ray &r, float t0, float t1, hit_record &rec){
     if(h->hit(r, t0, t1, rec)){
         rec.normal = -rec.normal;
         return true;

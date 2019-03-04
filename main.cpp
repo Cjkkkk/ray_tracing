@@ -103,9 +103,9 @@ int main(int argc, char** argv) {
     if(argc != 2)std::cout << "please specify output filename" << std::endl;
     std::ofstream outfile;
     outfile.open(argv[1], std::ios::out);
-    int nx = 1000;
-    int ny = 500;
-    int ns = 100;
+    int nx = 400;
+    int ny = 200;
+    int ns = 10;
     outfile << "P3\n" << nx << " " << ny << "\n255\n";
     hitable* world = random_scene();
 //    vec3 lookfrom = vec3(278, 278, -800);

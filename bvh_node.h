@@ -24,13 +24,15 @@ public:
 //    }
     virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
     virtual bool bounding_box(float t0, float t1, aabb& box) const;
+//    int cal_total_number_of_ray_object_tests();
     hitable *left;
     hitable *right;
     aabb box;
 };
 
-hitable* get_bvh_hier(hitable** l, int n, float time0, float time1){
-    int height = 5;
+
+
+hitable* get_bvh_hier(hitable** l, int height = 5, int n, float time0, float time1){
     int number_of_leaf = int(pow(2,  height ));
     bvh_node** bl = new bvh_node*[int(pow(2,  height -1))];
     int j = 0;
@@ -88,4 +90,6 @@ bool bvh_node ::hit(const ray &r, float t_min, float t_max, hit_record &rec) con
     }
     return false;
 }
+
+
 #endif //RAY_TRACING_BVH_NODE_H

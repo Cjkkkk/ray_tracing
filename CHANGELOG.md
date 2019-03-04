@@ -6,6 +6,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ## Unreleased
 
 ### Changed
+- better BVH space division
 - BRDF
 - Monte Carlo
 
