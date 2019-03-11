@@ -278,7 +278,7 @@ translate 与 rotate
     - 是否ray的方向与平面平行
     - 判断相交时间t是否大于0
     - inside outside test判断是否在三角形内部    
-    [](https://www.scratchapixel.com/images/upload/ray-triangle/triinsideout2.png?)
+    ![](https://www.scratchapixel.com/images/upload/ray-triangle/triinsideout2.png?)
 * 为什么选择三角形作为primitive
     - 相交计算简单
     - 容易作为构成复杂物体的基本单元
