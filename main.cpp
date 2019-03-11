@@ -17,6 +17,7 @@
 #include "Geometry/rotate_y.h"
 #include "Geometry/translate.h"
 #include "bvh_node.h"
+#include "Geometry/triangle.h"
 
 vec3 color(const ray& r, hitable *world, int depth) {
     hit_record rec;
@@ -33,7 +34,7 @@ vec3 color(const ray& r, hitable *world, int depth) {
         }
     }
     else {
-        return vec3(1, 1, 1); // 环境光
+        return vec3(0.7, 0.7, 0.4); // 环境光
     }
 }
 hitable *cornel_box(){
@@ -49,7 +50,8 @@ hitable *cornel_box(){
     list[i++] = new flip(new xz_rect(0, 555, 0, 555, 555, white));
     list[i++] = new xz_rect(0, 555, 0, 555, 0, white);
     list[i++] = new flip(new xy_rect(0, 555, 0, 555, 555, white));
-    list[i++] = new translate(new rotate_y(new box(vec3(0, 0 , 0), vec3(165, 165, 165), white), -18), vec3(130, 0, 65));
+    //list[i++] = new translate(new rotate_y(new box(vec3(0, 0 , 0), vec3(165, 165, 165), white), -18), vec3(130, 0, 65));
+    list[i++] = new triangle(vec3(155, 165 , 163), vec3(165, 165, 165), vec3(160, 170, 168), white);
     list[i++] = new translate(new rotate_y(new box(vec3(0, 0 , 0), vec3(165, 330, 165), white), 15), vec3(265, 0, 295));
     return new hitable_list(list, i);
 }
@@ -88,8 +90,8 @@ hitable* random_scene(){
     list[i++] = new sphere(vec3(0,1,0), 1.0, new dielectric(1.5));
     list[i++] = new sphere(vec3(-4,1,0), 1.0, new lambertian(new const_texture(vec3(0.4,0.2,0.1))));
     list[i++] = new sphere(vec3(4,1,0),1.0, new metal(vec3(0.7,0.6,0.6), 0.0));
-    //return new hitable_list(list, i);
-    return get_bvh_hier(list, n, 0.001, FLT_MAX);
+    return new hitable_list(list, i);
+//    return get_bvh_hier(list, n, 0.001, FLT_MAX);
 }
 
 hitable *earth() {
@@ -99,22 +101,29 @@ hitable *earth() {
     return new sphere(vec3(0, 3, 0), 2, mat);
 }
 
+hitable *simple_triangle(){
+    hitable **list = new hitable*[2];
+    list[0] = new triangle(vec3(-2, 0, 0), vec3(2, 0, 0), vec3(0, 2, 0), new diffuse_light(new const_texture(vec3(0.7, 0.6, 0.5))));
+    list[1] = new triangle(vec3(2, 4, -4), vec3(4, 3, -2), vec3(3, 5, -3), new diffuse_light(new const_texture(vec3(0.2, 0.4, 0.5))));
+    return new hitable_list(list, 2);
+}
+
 int main(int argc, char** argv) {
     if(argc != 2)std::cout << "please specify output filename" << std::endl;
     std::ofstream outfile;
     outfile.open(argv[1], std::ios::out);
     int nx = 400;
     int ny = 200;
-    int ns = 10;
+    int ns = 20;
     outfile << "P3\n" << nx << " " << ny << "\n255\n";
-    hitable* world = random_scene();
+    hitable* world = simple_triangle();
 //    vec3 lookfrom = vec3(278, 278, -800);
 //    vec3 lookat = vec3(278, 278, 0);
-    vec3 lookfrom = vec3(4, 4, 4);
-    vec3 lookat = vec3(0, 0, 0);
+    vec3 lookfrom = vec3(0, 0, 10);
+    vec3 lookat = vec3(-5, 0, 1);
     float dist_to_focus = 10;
     float aperture = 0;
-    camera cam(lookfrom, lookat, vec3(0,1,0), 40, float(nx) / float(ny), aperture, dist_to_focus, 0.0, 1.0);
+    camera cam(lookfrom, lookat, vec3(0,1,0), 60, float(nx) / float(ny), aperture, dist_to_focus, 0.0, 1.0);
 
     clock_t startTime,endTime;
     startTime = clock();

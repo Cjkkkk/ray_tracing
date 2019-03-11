@@ -228,7 +228,7 @@ else
 三个时间段重合则说明有相交
 
 
-## 14 texture
+## 14 纹理 texture
 u, v 映射到图片像素
 
 ### 14.1 插值
@@ -240,7 +240,7 @@ u, v 映射到图片像素
 球体坐标(x, y, z) => (r, theta, phi)
 theta, phi 映射到 (0, 1)
 
-## 15 rectangles and light
+## 15 矩形和光线 rectangles and light
 ### 15.1 rectangles
 rectangle 认为是axis-aligned
 
@@ -267,5 +267,22 @@ translate 与 rotate
 核心思想
 * 不移动物体
 * 逆向移动ray
+
+## 18 三角形 triangle
+* 平面方程
+    - Ax + By + Cz + D = 0
+    - p0是平面上任意一点， n是平面法向量
+    - D = dot(n, p0) 
+    - n = (A, B, C)
+* 相交判断
+    - 是否ray的方向与平面平行
+    - 判断相交时间t是否大于0
+    - inside outside test判断是否在三角形内部    
+    [](https://www.scratchapixel.com/images/upload/ray-triangle/triinsideout2.png?)
+* 为什么选择三角形作为primitive
+    - 相交计算简单
+    - 容易作为构成复杂物体的基本单元
+    (球体也容易计算相交但不易作为复杂物体的基本单元)
+
 
 

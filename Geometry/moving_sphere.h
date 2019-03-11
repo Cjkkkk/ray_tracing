@@ -26,7 +26,7 @@ vec3 moving_sphere::center(float time) const {
 }
 
 bool moving_sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) {
-    number_of_ray_object_test += 1;
+//    number_of_ray_object_test += 1;
     vec3 oc = r.origin() - center(r.time());
     float a = dot(r.direction(), r.direction());
     float b = dot(oc, r.direction());

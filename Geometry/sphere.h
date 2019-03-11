@@ -27,7 +27,7 @@ void get_sphere_uv(vec3 &p, float &u, float &v) {
 }
 
 bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) {
-    number_of_ray_object_test += 1;
+//    number_of_ray_object_test += 1;
     vec3 oc = r.origin() - center;
     float a = dot(r.direction(), r.direction());
     float b = dot(oc, r.direction());

@@ -22,7 +22,7 @@ public:
 //    bvh_node(hitable **l, int n, float time0, float time1){
 //
 //    }
-    virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
+    virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec);
     virtual bool bounding_box(float t0, float t1, aabb& box) const;
 //    int cal_total_number_of_ray_object_tests();
     hitable *left;
@@ -32,7 +32,7 @@ public:
 
 
 
-hitable* get_bvh_hier(hitable** l, int height = 5, int n, float time0, float time1){
+hitable* get_bvh_hier(hitable** l, int height, int n, float time0, float time1){
     int number_of_leaf = int(pow(2,  height ));
     bvh_node** bl = new bvh_node*[int(pow(2,  height -1))];
     int j = 0;
@@ -63,12 +63,12 @@ hitable* get_bvh_hier(hitable** l, int height = 5, int n, float time0, float tim
     return bl[0];
 
 }
-bool bvh_node::bounding_box(float t0, float t1, aabb &b) const {
+bool bvh_node::bounding_box(float t0, float t1, aabb& b) const {
     b = box;
     return true;
 }
 
-bool bvh_node ::hit(const ray &r, float t_min, float t_max, hit_record &rec) const {
+bool bvh_node::hit(const ray &r, float t_min, float t_max, hit_record &rec) {
     if(box.hit(r, t_min, t_max)) {
         hit_record left_rec, right_rec;
         bool hit_left = left->hit(r, t_min, t_max, left_rec);

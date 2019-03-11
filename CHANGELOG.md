@@ -4,12 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
 ## Unreleased
-
 ### Changed
 - better BVH space division
 - BRDF
 - Monte Carlo
 
+## 0.1.0 - 2019-03-11
+### Added
+- add triangle
 
 ## 0.0.1 - 2019-03-03
 ### Changed
