@@ -2,6 +2,7 @@
 #include <limits>
 #include <fstream>
 #include <time.h>
+#include "Geometry/hitable.h"
 #include "Geometry/sphere.h"
 #include "Geometry/moving_sphere.h"
 #include "Geometry/hitablelist.h"
@@ -16,7 +17,7 @@
 #include "Geometry/box.h"
 #include "Geometry/rotate_y.h"
 #include "Geometry/translate.h"
-#include "bvh_node.h"
+#include "BVH.h"
 #include "Geometry/triangle.h"
 
 vec3 color(const ray& r, hitable *world, int depth) {
@@ -34,7 +35,7 @@ vec3 color(const ray& r, hitable *world, int depth) {
         }
     }
     else {
-        return vec3(0.7, 0.7, 0.4); // 环境光
+        return vec3(1, 1, 1); // 环境光
     }
 }
 hitable *cornel_box(){
@@ -90,8 +91,8 @@ hitable* random_scene(){
     list[i++] = new sphere(vec3(0,1,0), 1.0, new dielectric(1.5));
     list[i++] = new sphere(vec3(-4,1,0), 1.0, new lambertian(new const_texture(vec3(0.4,0.2,0.1))));
     list[i++] = new sphere(vec3(4,1,0),1.0, new metal(vec3(0.7,0.6,0.6), 0.0));
-    return new hitable_list(list, i);
-//    return get_bvh_hier(list, n, 0.001, FLT_MAX);
+    //return new hitable_list(list, i);
+    return get_bvh_hier(list, 5, n, 0.001, FLT_MAX);
 }
 
 hitable *earth() {
@@ -103,20 +104,22 @@ hitable *earth() {
 
 hitable *simple_triangle(){
     hitable **list = new hitable*[2];
-    list[0] = new triangle(vec3(-2, 0, 0), vec3(2, 0, 0), vec3(0, 2, 0), new diffuse_light(new const_texture(vec3(0.7, 0.6, 0.5))));
-    list[1] = new triangle(vec3(2, 4, -4), vec3(4, 3, -2), vec3(3, 5, -3), new diffuse_light(new const_texture(vec3(0.2, 0.4, 0.5))));
+    list[0] = new triangle(vec3(-2, 0, 0), vec3(2, 0, 0), vec3(0, 2, 0), new diffuse_light(new const_texture(vec3(0, 1, 0))));
+    list[1] = new triangle(vec3(2, 4, -4), vec3(4, 3, -2), vec3(3, 5, -3), new diffuse_light(new const_texture(vec3(1, 0, 0))));
     return new hitable_list(list, 2);
 }
+int hitable::intersection_times = 0;
 
 int main(int argc, char** argv) {
     if(argc != 2)std::cout << "please specify output filename" << std::endl;
     std::ofstream outfile;
     outfile.open(argv[1], std::ios::out);
-    int nx = 400;
-    int ny = 200;
-    int ns = 20;
+    int nx = 200;
+    int ny = 100;
+    int ns = 5;
     outfile << "P3\n" << nx << " " << ny << "\n255\n";
-    hitable* world = simple_triangle();
+    //hitable* world = simple_triangle();
+    hitable* world = random_scene();
 //    vec3 lookfrom = vec3(278, 278, -800);
 //    vec3 lookat = vec3(278, 278, 0);
     vec3 lookfrom = vec3(0, 0, 10);
@@ -127,7 +130,6 @@ int main(int argc, char** argv) {
 
     clock_t startTime,endTime;
     startTime = clock();
-
     for (int j = ny-1; j >= 0; j--) {
         for (int i = 0; i < nx; i++) {
             vec3 col(0, 0, 0);
@@ -147,7 +149,8 @@ int main(int argc, char** argv) {
         }
     }
     endTime = clock();
-    std::cout << "Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
+    std::cout << "Total Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
+    std::cout << "Total number of intersection tests: " << hitable::intersection_times << std::endl;
     outfile.close();
 
 }

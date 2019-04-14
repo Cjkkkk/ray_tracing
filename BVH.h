@@ -8,9 +8,9 @@
 #include "Geometry/hitable.h"
 #include "Geometry/hitablelist.h"
 
-class bvh_node : public hitable {
+class BVH : public hitable {
 public:
-    bvh_node(hitable* left_, hitable* right_, float time0, float time1){
+    BVH(hitable* left_, hitable* right_, float time0, float time1){
         left = left_;
         right = right_;
         aabb box1, box2;
@@ -19,7 +19,7 @@ public:
         if(!result1 || ! result2)std::cout << "can not surr!" << std::endl;
         box = surrounding_box(box1, box2);
     }
-//    bvh_node(hitable **l, int n, float time0, float time1){
+//    BVH(hitable **l, int n, float time0, float time1){
 //
 //    }
     virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec);
@@ -34,7 +34,7 @@ public:
 
 hitable* get_bvh_hier(hitable** l, int height, int n, float time0, float time1){
     int number_of_leaf = int(pow(2,  height ));
-    bvh_node** bl = new bvh_node*[int(pow(2,  height -1))];
+    BVH** bl = new BVH*[int(pow(2,  height -1))];
     int j = 0;
     if(n <= number_of_leaf) return new hitable_list(l, n);
     else{
@@ -50,25 +50,25 @@ hitable* get_bvh_hier(hitable** l, int height, int n, float time0, float time1){
             offset += hitable_number_in_left_leaf;
             hitable* righ = new hitable_list(&(l[offset]), hitable_number_in_right_leaf);
             offset += hitable_number_in_right_leaf;
-            bl[j++] = new bvh_node(lef, righ, time0, time1);
+            bl[j++] = new BVH(lef, righ, time0, time1);
         }
     }
     while(j != 1){
         int current = 0;
         for(int i = 0 ; i < j ; i+=2){
-            bl[current++] = new bvh_node(bl[i], bl[i+1], time0, time1);
+            bl[current++] = new BVH(bl[i], bl[i+1], time0, time1);
         }
         j /= 2;
     }
     return bl[0];
 
 }
-bool bvh_node::bounding_box(float t0, float t1, aabb& b) const {
+bool BVH::bounding_box(float t0, float t1, aabb& b) const {
     b = box;
     return true;
 }
 
-bool bvh_node::hit(const ray &r, float t_min, float t_max, hit_record &rec) {
+bool BVH::hit(const ray &r, float t_min, float t_max, hit_record &rec) {
     if(box.hit(r, t_min, t_max)) {
         hit_record left_rec, right_rec;
         bool hit_left = left->hit(r, t_min, t_max, left_rec);

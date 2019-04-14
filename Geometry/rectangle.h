@@ -47,6 +47,7 @@ public:
 
 
 bool xy_rect::hit(const ray& r, float t0, float t1, hit_record& rec) {
+    hitable::increaseIntersectionTimes();
     float t = (k-r.origin().z()) / r.direction().z();
     if (t < t0 || t > t1)
         return false;
@@ -65,7 +66,7 @@ bool xy_rect::hit(const ray& r, float t0, float t1, hit_record& rec) {
 
 
 bool xz_rect::hit(const ray& r, float t0, float t1, hit_record& rec) {
-//    number_of_ray_object_test += 1;
+    hitable::increaseIntersectionTimes();
     float t = (k-r.origin().y()) / r.direction().y();
     if (t < t0 || t > t1)
         return false;
@@ -83,6 +84,7 @@ bool xz_rect::hit(const ray& r, float t0, float t1, hit_record& rec) {
 }
 
 bool yz_rect::hit(const ray& r, float t0, float t1, hit_record& rec) {
+    hitable::increaseIntersectionTimes();
     float t = (k-r.origin().x()) / r.direction().x();
     if (t < t0 || t > t1)
         return false;
