@@ -21,38 +21,53 @@ public:
     virtual bool bounding_box(float t0, float t1, aabb& box) const;
     aabb* box;
     hitable* obj;
-    bool state;
     std::vector<BVH*>* child;
 };
 
 void insertIntoBVHTree(BVH* root, hitable* obj, float time0, float time1){
     aabb box;
-    obj->bounding_box(time0, time1, box);
+    obj->bounding_box(time0, time1, box); // 获取物体的bounding box
     auto curr = root;
-    auto index = curr->box->getSubSlotIndex(box.center());
     while(true) {
         if(!curr->child) {
             // 叶子
             curr->child = new std::vector<BVH*>(8);
+            // 分裂8个slab
+            auto index = curr->box->getSubSlotIndex(box.center()); // 判断物体在box的8个slab中的位置
+            curr->child->at(index) = new BVH(nullptr, obj, time0, time1);
             auto subBox = curr->box->getSubSlot(index);
-            curr->child->at(index) = new BVH(nullptr, obj, time0, time1);
             curr->child->at(index)->box = new aabb(subBox->min(), subBox->max());
+            // 下移叶子节点中的元素
+            insertIntoBVHTree(curr, curr->obj, time0, time1);
             break;
-        }else if(!curr->child->at(index)) {
-            curr->child->at(index) = new BVH(nullptr, obj, time0, time1);
-            curr->child->at(index)->box = new aabb(box.min(), box.max());
-            break;
-        }else{
-            curr = curr->child->at(index);
-            if(!curr->child) {
-                //叶子， 下移这个节点的元素
-                auto temp = curr->obj;
-//                curr->obj = nullptr;
-                insertIntoBVHTree(curr, temp, time0, time1);
+        }else {
+            // 不是叶子的情况
+            auto index = curr->box->getSubSlotIndex(box.center()); // 判断物体在box的8个slab中的位置
+            // 子女是叶子 直接插入
+            if(!curr->child->at(index)){
+                curr->child->at(index) = new BVH(nullptr, obj, time0, time1);
+                auto subBox = curr->box->getSubSlot(index);
+                curr->child->at(index)->box = new aabb(subBox->min(), subBox->max());
+                break;
+            }else{
+                curr = curr->child->at(index);
             }
         }
     }
 }
+void bottomUpBounding(BVH* root, float time0, float time1){
+    if(!root->child) {
+        root->obj->bounding_box(time0, time1, *root->box);
+    } else {
+        for(int i = 0 ; i < 8; i ++){
+            if(root->child->at(i)){
+                bottomUpBounding(root->child->at(i),time0, time1);
+                *root->box = surrounding_box(*root->box, *root->child->at(i)->box);
+            }
+        }
+    }
+}
+
 hitable* getBVHHierarchy(hitable** l, int n, float time0, float time1){
     aabb box1, box2;
     l[0]->bounding_box(time0, time1, box1);
@@ -66,60 +81,28 @@ hitable* getBVHHierarchy(hitable** l, int n, float time0, float time1){
         insertIntoBVHTree(root, l[i], time0, time1);
         //std::cout << box1.center() << " | " << box2.center() << " "<< "index: " << box1.getSubSlotIndex(box2._center) << std::endl;
     }
+    bottomUpBounding(root, time0, time1);
 //    std::cout << box1.min() << std::endl;
 //    std::cout << box1.max() << std::endl;
     return root;
 }
 
-
-//hitable* get_bvh_hier(hitable** l, int height, int n, float time0, float time1){
-//    int number_of_leaf = int(pow(2,  height ));
-//    BVH** bl = new BVH*[int(pow(2,  height -1))];
-//    int j = 0;
-//    if(n <= number_of_leaf) return new hitable_list(l, n);
-//    else{
-//        int hitable_number_in_small_leaf = n / number_of_leaf;
-//        int hitable_number_in_big_leaf = hitable_number_in_small_leaf + 1;
-//        int number_of_small_leaf = hitable_number_in_big_leaf * number_of_leaf - n;
-//        int offset = 0;
-//        for(int i = 0 ; i < number_of_leaf ; i+=2){
-//            int hitable_number_in_left_leaf = (i < number_of_small_leaf? hitable_number_in_small_leaf:hitable_number_in_big_leaf);
-//            int hitable_number_in_right_leaf = (i < number_of_small_leaf? hitable_number_in_small_leaf:hitable_number_in_big_leaf);
-//            //std::cout << i << " " << offset <<" "<< " " << hitable_number_in_left_leaf << " " << hitable_number_in_right_leaf << std::endl;
-//            hitable* lef = new hitable_list(&(l[offset]),hitable_number_in_left_leaf);
-//            offset += hitable_number_in_left_leaf;
-//            hitable* righ = new hitable_list(&(l[offset]), hitable_number_in_right_leaf);
-//            offset += hitable_number_in_right_leaf;
-//            bl[j++] = new BVH(lef, righ, time0, time1);
-//        }
-//    }
-//    while(j != 1){
-//        int current = 0;
-//        for(int i = 0 ; i < j ; i+=2){
-//            bl[current++] = new BVH(bl[i], bl[i+1], time0, time1);
-//        }
-//        j /= 2;
-//    }
-//    return bl[0];
-//
-//}
 bool BVH::bounding_box(float t0, float t1, aabb& b) const {
     b = *box;
     return true;
 }
 
 bool BVH::hit(const ray &r, float t_min, float t_max, hit_record &rec) {
-    if(box->hit(r, t_min, t_max)) {
-        hit_record rec;
-        bool result = false;
-        if(!child) {
-            //到达叶子节点了
-            if(obj->hit(r, t_min, t_max, rec)) {
-                return true;
-            }else{
-                return false;
-            }
+    if(!child) {
+        //到达叶子节点了
+        if(obj->hit(r, t_min, t_max, rec)) {
+            return true;
+        }else{
+            return false;
         }
+    }
+    if(box->hit(r, t_min, t_max)) {
+        bool result = false;
         // 递归检查子节点
         for(int i = 0 ; i < child->size() ; i++){
             if(child->at(i)) {

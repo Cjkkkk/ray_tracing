@@ -29,7 +29,7 @@ vec3 color(const ray& r, hitable *world, int depth) {
         vec3 attenuation;
         vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
         if (depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
-            return emitted + attenuation*color(scattered, world, depth+1);
+            return emitted + attenuation * color(scattered, world, depth+1);
             // 一般物体材质不发光 第一项为0 发光物体不散射 返回亮度
         }
         else {
@@ -106,10 +106,12 @@ hitable *earth() {
 }
 
 hitable *simple_triangle(){
-    hitable **list = new hitable*[2];
+    hitable **list = new hitable*[1];
     list[0] = new triangle(vec3(-2, 0, 0), vec3(2, 0, 0), vec3(0, 2, 0), new diffuse_light(new const_texture(vec3(0, 1, 0))));
     list[1] = new triangle(vec3(2, 4, -4), vec3(4, 3, -2), vec3(3, 5, -3), new diffuse_light(new const_texture(vec3(1, 0, 0))));
-    return new hitable_list(list, 2);
+    list[2] = new triangle(vec3(4, 0, 0), vec3(5, 0, 2), vec3(8, 2, 0), new diffuse_light(new const_texture(vec3(0, 0, 1))));
+    //return new hitable_list(list, 2);
+    return getBVHHierarchy(list, 3, 0.001, FLT_MAX);
 }
 int hitable::intersection_times = 0;
 
@@ -121,8 +123,8 @@ int main(int argc, char** argv) {
     int ny = 100;
     int ns = 5;
     outfile << "P3\n" << nx << " " << ny << "\n255\n";
-    //hitable* world = simple_triangle();
-    hitable* world = random_scene();
+    hitable* world = simple_triangle();
+    //hitable* world = random_scene();
 //    vec3 lookfrom = vec3(278, 278, -800);
 //    vec3 lookat = vec3(278, 278, 0);
     vec3 lookfrom = vec3(0, 0, 10);
