@@ -12,8 +12,8 @@
 //public:
 //    rotate_y(hitable* p, float angle);
 //    virtual bool hit(const ray& r, float t0, float t1, hit_record& rec) const;
-//    virtual bool bounding_box(float t0, float t1, aabb& box) const {
-//        box = bbox;
+//    virtual bool bounding_box(float t0, float t1, aabb& cornel_box) const {
+//        cornel_box = bbox;
 //        return hasbox;
 //    }
 //    float sin_theta;

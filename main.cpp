@@ -2,6 +2,8 @@
 #include <limits>
 #include <fstream>
 #include <time.h>
+#include <thread>
+
 #include "Geometry/hitable.h"
 #include "Geometry/sphere.h"
 #include "Geometry/moving_sphere.h"
@@ -12,12 +14,12 @@
 #include "Utils/s_random.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "Utils/stb_image.h"
+#include "BVH.h"
 #include "Geometry/rectangle.h"
 #include "Geometry/flip.h"
-#include "Geometry/box.h"
+#include "Geometry/cornel_box.h"
 #include "Geometry/rotate_y.h"
 #include "Geometry/translate.h"
-#include "BVH.h"
 #include "Geometry/triangle.h"
 
 vec3 color(const ray& r, hitable *world, int depth) {
@@ -38,7 +40,7 @@ vec3 color(const ray& r, hitable *world, int depth) {
         return vec3(1, 1, 1); // 环境光
     }
 }
-hitable *cornel_box(){
+hitable *cornel_box_(){
     hitable **list = new hitable*[8];
     int i = 0;
     material *red = new lambertian(new const_texture(vec3(0.65, 0.05, 0.05)));
@@ -51,9 +53,9 @@ hitable *cornel_box(){
     list[i++] = new flip(new xz_rect(0, 555, 0, 555, 555, white));
     list[i++] = new xz_rect(0, 555, 0, 555, 0, white);
     list[i++] = new flip(new xy_rect(0, 555, 0, 555, 555, white));
-    //list[i++] = new translate(new rotate_y(new box(vec3(0, 0 , 0), vec3(165, 165, 165), white), -18), vec3(130, 0, 65));
+    //list[i++] = new translate(new rotate_y(new cornel_box(vec3(0, 0 , 0), vec3(165, 165, 165), white), -18), vec3(130, 0, 65));
     list[i++] = new triangle(vec3(155, 165 , 163), vec3(165, 165, 165), vec3(160, 170, 168), white);
-    list[i++] = new translate(new rotate_y(new box(vec3(0, 0 , 0), vec3(165, 330, 165), white), 15), vec3(265, 0, 295));
+    list[i++] = new translate(new rotate_y(new cornel_box(vec3(0, 0 , 0), vec3(165, 330, 165), white), 15), vec3(265, 0, 295));
     return new hitable_list(list, i);
 }
 hitable *simple_light(){
@@ -66,7 +68,7 @@ hitable *simple_light(){
     return new hitable_list(list, 4);
 }
 hitable* random_scene(){
-    int n = 487;
+    int n = 486;
     hitable **list = new hitable* [n];
     texture *checker = new checker_texture(new const_texture(vec3(0.2, 0.3, 0.1)), new const_texture(vec3(0.9, 0.9, 0.9)));
     list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(checker));
@@ -91,8 +93,9 @@ hitable* random_scene(){
     list[i++] = new sphere(vec3(0,1,0), 1.0, new dielectric(1.5));
     list[i++] = new sphere(vec3(-4,1,0), 1.0, new lambertian(new const_texture(vec3(0.4,0.2,0.1))));
     list[i++] = new sphere(vec3(4,1,0),1.0, new metal(vec3(0.7,0.6,0.6), 0.0));
+    return getBVHHierarchy(list, n, 0.001, FLT_MAX);
     //return new hitable_list(list, i);
-    return get_bvh_hier(list, 5, n, 0.001, FLT_MAX);
+    //return getBVHHierarchy(list, n, 0.001, FLT_MAX);
 }
 
 hitable *earth() {
@@ -142,9 +145,9 @@ int main(int argc, char** argv) {
             }
             col /= float(ns);
             col = vec3( sqrt(col[0]), sqrt(col[1]), sqrt(col[2]) );
-            int ir = int(255.99*col[0]);
-            int ig = int(255.99*col[1]);
-            int ib = int(255.99*col[2]);
+            auto ir = int(255.99*col[0]);
+            auto ig = int(255.99*col[1]);
+            auto ib = int(255.99*col[2]);
             outfile << std::min(ir,255) << " " << std::min(ig,255) << " " << std::min(ib,255) << "\n";
         }
     }
