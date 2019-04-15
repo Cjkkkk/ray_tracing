@@ -106,10 +106,10 @@ hitable *earth() {
 }
 
 hitable *simple_triangle(){
-    hitable **list = new hitable*[1];
-    list[0] = new triangle(vec3(-2, 0, 0), vec3(2, 0, 0), vec3(0, 2, 0), new diffuse_light(new const_texture(vec3(0, 1, 0))));
-    list[1] = new triangle(vec3(2, 4, -4), vec3(4, 3, -2), vec3(3, 5, -3), new diffuse_light(new const_texture(vec3(1, 0, 0))));
-    list[2] = new triangle(vec3(4, 0, 0), vec3(5, 0, 2), vec3(8, 2, 0), new diffuse_light(new const_texture(vec3(0, 0, 1))));
+    hitable **list = new hitable*[3];
+    list[1] = new triangle(vec3(-2, 0, 0), vec3(2, 0, 0), vec3(0, 2, 0), new diffuse_light(new const_texture(vec3(0, 1, 0))));
+    list[0] = new triangle(vec3(2, 4, -4), vec3(4, 3, -2), vec3(3, 5, -3), new diffuse_light(new const_texture(vec3(1, 0, 0))));
+    list[2] = new triangle(vec3(4, 0, 0), vec3(5, 5, 2), vec3(8, 2, 0), new diffuse_light(new const_texture(vec3(0, 0, 1))));
     //return new hitable_list(list, 2);
     return getBVHHierarchy(list, 3, 0.001, FLT_MAX);
 }

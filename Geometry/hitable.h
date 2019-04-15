@@ -38,12 +38,18 @@ public:
     }
     aabb* getSubSlot(const int index){
         vec3 pMin, pMax;
-        pMin[0] = (index & 4) ? center()[0] : min()[0];
-        pMax[0] = (index & 4) ? max()[0] : center()[0];
-        pMin[1] = (index & 2) ? center()[1] : min()[1];
-        pMax[1] = (index & 2) ? max()[1] : center()[1];
-        pMin[2] = (index & 1) ? center()[2] : min()[2];
-        pMax[2] = (index & 1) ? max()[2] : center()[2];
+//        pMin[0] = (index & 4) ? center()[0] : min()[0];
+//        pMax[0] = (index & 4) ? max()[0] : center()[0];
+//        pMin[1] = (index & 2) ? center()[1] : min()[1];
+//        pMax[1] = (index & 2) ? max()[1] : center()[1];
+//        pMin[2] = (index & 1) ? center()[2] : min()[2];
+//        pMax[2] = (index & 1) ? max()[2] : center()[2];
+        pMin[0] = (index & 1) ? center()[0] : min()[0];
+        pMax[0] = (index & 1) ? max()[0] : center()[0];
+        pMin[1] = (index & 4) ? min()[1] : center()[1];
+        pMax[1] = (index & 4) ? center()[1] : max()[1];
+        pMin[2] = (index & 2) ? center()[2] : min()[2];
+        pMax[2] = (index & 2) ? max()[2] : center()[2];
         return new aabb(pMin, pMax);
 //        if(index == 0){
 //            auto pMin = vec3(min().x(), center().y(), center().z());
