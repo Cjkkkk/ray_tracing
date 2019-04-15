@@ -5,9 +5,14 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## Unreleased
 ### Changed
-- better BVH space division
+- multi-threading
 - BRDF
 - Monte Carlo
+
+## 1.0.0 - 2019-04-15
+### Updated
+- improve BVH
+- benchmark
 
 ## 0.1.0 - 2019-03-11
 ### Added
@@ -18,7 +23,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - add BVH model 
 - benchmark
 
-| method              | scene               | time    |
-|---------------------|---------------------|---------|
-| linear search space | 487 random spheres  | 21.622s |
-| BVH(height of 6)    | 487 random spheres  | 10.711s |
+| scene              | running time (linear/BVH)|  intersection times(linear/BVH) |
+|--------------------|-------------|---------------------|
+| 487 random spheres | 17.955s / 12.098s | 4.0e8 / 2.4e6|
+| cornell box (18 rectangle ) | 1.28s / 3.497s    | 1.5e7 / 2.8e6|

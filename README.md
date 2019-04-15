@@ -227,6 +227,10 @@ else
 
 三个时间段重合则说明有相交
 
+| scene              | running time (linear/BVH)|  intersection times(linear/BVH) |
+|--------------------|-------------|---------------------|
+| 487 random spheres | 17.955s / 12.098s | 4.0e8 / 2.4e6|
+| cornell box (18 rectangle ) | 1.28s / 3.497s    | 1.5e7 / 2.8e6|
 
 ## 14 纹理 texture
 u, v 映射到图片像素

@@ -38,12 +38,6 @@ public:
     }
     aabb* getSubSlot(const int index){
         vec3 pMin, pMax;
-//        pMin[0] = (index & 4) ? center()[0] : min()[0];
-//        pMax[0] = (index & 4) ? max()[0] : center()[0];
-//        pMin[1] = (index & 2) ? center()[1] : min()[1];
-//        pMax[1] = (index & 2) ? max()[1] : center()[1];
-//        pMin[2] = (index & 1) ? center()[2] : min()[2];
-//        pMax[2] = (index & 1) ? max()[2] : center()[2];
         pMin[0] = (index & 1) ? center()[0] : min()[0];
         pMax[0] = (index & 1) ? max()[0] : center()[0];
         pMin[1] = (index & 4) ? min()[1] : center()[1];
@@ -51,47 +45,11 @@ public:
         pMin[2] = (index & 2) ? center()[2] : min()[2];
         pMax[2] = (index & 2) ? max()[2] : center()[2];
         return new aabb(pMin, pMax);
-//        if(index == 0){
-//            auto pMin = vec3(min().x(), center().y(), center().z());
-//            auto pMax = vec3(center().x(),max().y(), max().z());
-//            box = new aabb(pMin, pMax);
-//        }else if(index == 1) {
-//            auto pMin = vec3(center().x(), center().y(), center().z());
-//            auto pMax = vec3(max().x(),max().y(), max().z());
-//            box = new aabb(pMin, pMax);
-//        }else if(index == 2){
-//            auto pMin = vec3(min().x(), center().y(), min().z());
-//            auto pMax = vec3(center().x(), max().y(), center().z());
-//            box = new aabb(pMin, pMax);
-//        }else if(index == 3){
-//            auto pMin = vec3(center().x(), center().y(), min().z());
-//            auto pMax = vec3(max().x(),max().y(), center().z());
-//            box = new aabb(pMin, pMax);
-//        }else if(index == 4){
-//            auto pMin = vec3(min().x(),min().y(),center().z());
-//            auto pMax = vec3(center().x(), center().y(), max().z());
-//            box = new aabb(pMin, pMax);
-//        }else if(index == 5){
-//            auto pMin = vec3(center().x(),min().y(),center().z());
-//            auto pMax = vec3(max().x(), center().y(), max().z());
-//            box = new aabb(pMin, pMax);
-//        }else if(index == 6){
-//            auto pMin = vec3(min().x(), min().y(), min().z());
-//            auto pMax = vec3(center().x(),center().y(), center().z());
-//            box = new aabb(pMin, pMax);
-//        }else if(index == 7){
-//            auto pMin = vec3(center().x(), min().y(), min().z());
-//            auto pMax = vec3(max().x(),center().y(), center().z());
-//            box = new aabb(pMin, pMax);
-//        }else{
-//            std::cout << "error!" << std::endl;
-//        }
-//        return box;
     }
     vec3 max() { return _max; }
     vec3 min() { return _min; }
     vec3 center() { return _center;}
-    bool hit(const ray& r, float tmin, float tmax) const {
+    bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const {
         for(int a = 0 ; a < 3 ; a++){
             float t0 = ffmin(
                     (_min[a] - r.origin()[a]) / r.direction()[a],
@@ -106,6 +64,7 @@ public:
             tmax = ffmin(t1, tmax);
             if(tmax <= tmin) return false;
         }
+        rec.t = tmin;
         return true;
     }
     vec3 _min;
@@ -132,7 +91,7 @@ public:
         intersection_times += 1;
     }
     virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) = 0;
-    virtual bool bounding_box(float t0, float t1, aabb& box) const = 0; // 获得物体的bounding cornel_box
+    virtual bool bounding_box(float t0, float t1, aabb& box) const = 0; // 获得物体的bounding cornell_box
 //    int number_of_ray_object_test = 0 ;
 };
 

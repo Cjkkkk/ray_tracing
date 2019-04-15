@@ -11,10 +11,10 @@
 //public:
 //    translate(hitable* _ptr, const vec3& _offset):ptr(_ptr), offset(_offset){}
 //    virtual bool hit(const ray& r, float t0, float t1, hit_record& rec) const;
-//    virtual bool bounding_box(float t0, float t1, aabb& cornel_box) const {
-//        if(ptr->bounding_box(t0, t1, cornel_box)){
-//            cornel_box._min += offset;
-//            cornel_box._max += offset;
+//    virtual bool bounding_box(float t0, float t1, aabb& cornell_box) const {
+//        if(ptr->bounding_box(t0, t1, cornell_box)){
+//            cornell_box._min += offset;
+//            cornell_box._max += offset;
 //            return true;
 //        }
 //        return false;

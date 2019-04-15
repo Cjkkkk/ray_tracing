@@ -55,6 +55,7 @@ public:
     }
 };
 
+// 发光物体
 class diffuse_light : public material  {
 public:
     diffuse_light(texture *a) : emit(a) {}

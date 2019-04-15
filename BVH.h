@@ -6,8 +6,10 @@
 #define RAY_TRACING_BVH_NODE_H
 
 #include <vector>
+#include <queue>
 #include "Geometry/hitable.h"
 #include "Geometry/hitablelist.h"
+#include "Geometry/triangle.h"
 
 class BVH : public hitable {
 public:
@@ -22,8 +24,14 @@ public:
     aabb box;
     bool isLeaf;
     uint8_t depth;
+    float t;
     std::vector<hitable*> data;
     std::vector<BVH*> child;
+    bool operator < (const BVH*a) const
+    {
+        //由小到大排列，如果要由大到小排列，使用“>”即可；
+        return a->t < t;
+    }
 };
 
 void insertIntoBVHTree(BVH* root, hitable* obj, float time0, float time1, uint8_t depth){
@@ -92,35 +100,32 @@ bool BVH::bounding_box(float t0, float t1, aabb& b) const {
 }
 
 bool BVH::hit(const ray &r, float t_min, float t_max, hit_record &rec) {
-    bool res = false;
-    if(isLeaf) {
-        //到达叶子节点了
-        for(auto obj: data){
-            if(obj->hit(r, t_min, t_max, rec)) {
-                res = true;
-                t_max = rec.t;
-            }
-        }
-        return res;
+    std::priority_queue <BVH*> pq;
+    bool ans = false;
+    if(this->box.hit(r, t_min, t_max, rec)) {
+        this->t = rec.t;
+        pq.push(this);
     }
-    if(box.hit(r, t_min, t_max)) {
-        // 递归检查子节点
-        int index = 0;
-        for(auto item : child){
-            if(item) {
-                res = item->hit(r, t_min, t_max, rec);
-                if(res) {
-                    std::cout << "hit "<< index << std::endl;
+    while(pq.size() && pq.top()->t < t_max) {
+        auto item = pq.top();
+        pq.pop();
+        if(item->isLeaf) {
+            for(auto obj : item->data) {
+                if(obj->hit(r, t_min, t_max, rec)){
                     t_max = rec.t;
-                } else {
-                    std::cout << "miss "<< index << std::endl;
+                    ans = true;
                 }
             }
-            index ++;
+        } else {
+            for(auto child: item->child) {
+                if(child && child->box.hit(r, t_min, t_max, rec)) {
+                    child->t = rec.t;
+                    pq.push(child);
+                }
+            }
         }
-        return res;
     }
-    return res;
+    return ans;
 }
 
 

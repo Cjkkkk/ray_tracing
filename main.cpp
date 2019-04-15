@@ -17,7 +17,7 @@
 #include "BVH.h"
 #include "Geometry/rectangle.h"
 #include "Geometry/flip.h"
-#include "Geometry/cornel_box.h"
+#include "Geometry/cornell_box.h"
 #include "Geometry/rotate_y.h"
 #include "Geometry/translate.h"
 #include "Geometry/triangle.h"
@@ -53,10 +53,10 @@ hitable *cornel_box_(){
     list[i++] = new flip(new xz_rect(0, 555, 0, 555, 555, white));
     list[i++] = new xz_rect(0, 555, 0, 555, 0, white);
     list[i++] = new flip(new xy_rect(0, 555, 0, 555, 555, white));
-    //list[i++] = new translate(new rotate_y(new cornel_box(vec3(0, 0 , 0), vec3(165, 165, 165), white), -18), vec3(130, 0, 65));
-    list[i++] = new triangle(vec3(155, 165 , 163), vec3(165, 165, 165), vec3(160, 170, 168), white);
-    list[i++] = new translate(new rotate_y(new cornel_box(vec3(0, 0 , 0), vec3(165, 330, 165), white), 15), vec3(265, 0, 295));
+    list[i++] = new translate(new rotate_y(new cornell_box(vec3(0, 0 , 0), vec3(165, 165, 165), white), -18), vec3(130, 0, 65));
+    list[i++] = new translate(new rotate_y(new cornell_box(vec3(0, 0 , 0), vec3(165, 330, 165), white), 15), vec3(265, 0, 295));
     return new hitable_list(list, i);
+    //return getBVHHierarchy(list, 8, 0.001, FLT_MAX);
 }
 hitable *simple_light(){
     texture *pertex = new noise_texture(4);
@@ -65,6 +65,7 @@ hitable *simple_light(){
     list[1] = new sphere(vec3(0, 2, 0), 2, new lambertian(pertex));
     list[2] = new sphere(vec3(0, 7, 0), 2, new diffuse_light(new const_texture(vec3(1, 1, 1))));
     list[3] = new xy_rect(3, 5, 1, 3, -2, new diffuse_light(new const_texture(vec3(1, 1, 1))));
+    //return getBVHHierarchy(list, 4, 0.001, FLT_MAX);
     return new hitable_list(list, 4);
 }
 hitable* random_scene(){
@@ -94,8 +95,7 @@ hitable* random_scene(){
     list[i++] = new sphere(vec3(-4,1,0), 1.0, new lambertian(new const_texture(vec3(0.4,0.2,0.1))));
     list[i++] = new sphere(vec3(4,1,0),1.0, new metal(vec3(0.7,0.6,0.6), 0.0));
     return getBVHHierarchy(list, n, 0.001, FLT_MAX);
-    //return new hitable_list(list, i);
-    //return getBVHHierarchy(list, n, 0.001, FLT_MAX);
+    return new hitable_list(list, i);
 }
 
 hitable *earth() {
@@ -106,28 +106,38 @@ hitable *earth() {
 }
 
 hitable *simple_triangle(){
-    hitable **list = new hitable*[3];
-    list[1] = new triangle(vec3(-2, 0, 0), vec3(2, 0, 0), vec3(0, 2, 0), new diffuse_light(new const_texture(vec3(0, 1, 0))));
-    list[0] = new triangle(vec3(2, 4, -4), vec3(4, 3, -2), vec3(3, 5, -3), new diffuse_light(new const_texture(vec3(1, 0, 0))));
-    list[2] = new triangle(vec3(4, 0, 0), vec3(5, 5, 2), vec3(8, 2, 0), new diffuse_light(new const_texture(vec3(0, 0, 1))));
+    hitable **list = new hitable*[2];
+    list[0] = new triangle(vec3(-2, 0, 0), vec3(2, 0, 0), vec3(0, 2, 0), new diffuse_light(new const_texture(vec3(0, 1, 0))));
+    list[1] = new triangle(vec3(-1, 1, 1), vec3(3, 1, 1), vec3(1, 3, 1), new diffuse_light(new const_texture(vec3(1, 0, 0))));
     //return new hitable_list(list, 2);
-    return getBVHHierarchy(list, 3, 0.001, FLT_MAX);
+    return getBVHHierarchy(list, 2, 0.001, FLT_MAX);
 }
+
+//hitable *simple_triangle(){
+//    hitable **list = new hitable*[1];
+//    int nx, ny, nn;
+//    unsigned char *tex_data = stbi_load("earthmap1k.jpg", &nx, &ny, &nn, 0);
+//    material *mat =  new lambertian(new image_texture(tex_data, nx, ny));
+//    list[0] = new triangle(vec3(-2, 0, 0), vec3(2, 0, 0), vec3(0, 2, 0), mat);
+//    //list[0] = new triangle(vec3(2, 4, -4), vec3(4, 3, -2), vec3(3, 5, -3), mat);
+//    return new hitable_list(list, 1);
+//}
+
 int hitable::intersection_times = 0;
 
 int main(int argc, char** argv) {
     if(argc != 2)std::cout << "please specify output filename" << std::endl;
     std::ofstream outfile;
     outfile.open(argv[1], std::ios::out);
-    int nx = 200;
-    int ny = 100;
+    int nx = 400;
+    int ny = 200;
     int ns = 5;
     outfile << "P3\n" << nx << " " << ny << "\n255\n";
-    hitable* world = simple_triangle();
-    //hitable* world = random_scene();
+    hitable* world = random_scene();
+    //hitable* world = cornel_box_();
 //    vec3 lookfrom = vec3(278, 278, -800);
 //    vec3 lookat = vec3(278, 278, 0);
-    vec3 lookfrom = vec3(0, 0, 10);
+     vec3 lookfrom = vec3(0, 0, 10);
     vec3 lookat = vec3(-5, 0, 1);
     float dist_to_focus = 10;
     float aperture = 0;

@@ -10,10 +10,10 @@
 #include "hitablelist.h"
 #include "flip.h"
 
-class cornel_box: public hitable  {
+class cornell_box: public hitable  {
 public:
-    cornel_box() {}
-    cornel_box(const vec3& p0, const vec3& p1, material *ptr);
+    cornell_box() {}
+    cornell_box(const vec3& p0, const vec3& p1, material *ptr);
     virtual bool hit(const ray& r, float t0, float t1, hit_record& rec);
     virtual bool bounding_box(float t0, float t1, aabb& box) const {
         box =  aabb(pmin, pmax);
@@ -22,7 +22,7 @@ public:
     hitable *list_ptr;
 };
 
-cornel_box::cornel_box(const vec3& p0, const vec3& p1, material *ptr) {
+cornell_box::cornell_box(const vec3& p0, const vec3& p1, material *ptr) {
     pmin = p0;
     pmax = p1;
     int i = 0 ;
@@ -36,7 +36,7 @@ cornel_box::cornel_box(const vec3& p0, const vec3& p1, material *ptr) {
     list_ptr = new hitable_list(list,i);
 }
 
-bool cornel_box::hit(const ray& r, float t0, float t1, hit_record& rec){
+bool cornell_box::hit(const ray& r, float t0, float t1, hit_record& rec){
     return list_ptr->hit(r, t0, t1, rec);
 }
 
