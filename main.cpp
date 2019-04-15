@@ -3,7 +3,8 @@
 #include <fstream>
 #include <time.h>
 #include <thread>
-
+#include "Utils/mingw.thread.h"
+#include "Utils/mingw.mutex.h"
 #include "Geometry/hitable.h"
 #include "Geometry/sphere.h"
 #include "Geometry/moving_sphere.h"
@@ -109,44 +110,18 @@ hitable *simple_triangle(){
     hitable **list = new hitable*[2];
     list[0] = new triangle(vec3(-2, 0, 0), vec3(2, 0, 0), vec3(0, 2, 0), new diffuse_light(new const_texture(vec3(0, 1, 0))));
     list[1] = new triangle(vec3(-1, 1, 1), vec3(3, 1, 1), vec3(1, 3, 1), new diffuse_light(new const_texture(vec3(1, 0, 0))));
-    //return new hitable_list(list, 2);
     return getBVHHierarchy(list, 2, 0.001, FLT_MAX);
 }
 
-//hitable *simple_triangle(){
-//    hitable **list = new hitable*[1];
-//    int nx, ny, nn;
-//    unsigned char *tex_data = stbi_load("earthmap1k.jpg", &nx, &ny, &nn, 0);
-//    material *mat =  new lambertian(new image_texture(tex_data, nx, ny));
-//    list[0] = new triangle(vec3(-2, 0, 0), vec3(2, 0, 0), vec3(0, 2, 0), mat);
-//    //list[0] = new triangle(vec3(2, 4, -4), vec3(4, 3, -2), vec3(3, 5, -3), mat);
-//    return new hitable_list(list, 1);
-//}
-
 int hitable::intersection_times = 0;
 
-int main(int argc, char** argv) {
-    if(argc != 2)std::cout << "please specify output filename" << std::endl;
-    std::ofstream outfile;
-    outfile.open(argv[1], std::ios::out);
-    int nx = 400;
-    int ny = 200;
-    int ns = 5;
-    outfile << "P3\n" << nx << " " << ny << "\n255\n";
-    hitable* world = random_scene();
-    //hitable* world = cornel_box_();
-//    vec3 lookfrom = vec3(278, 278, -800);
-//    vec3 lookat = vec3(278, 278, 0);
-     vec3 lookfrom = vec3(0, 0, 10);
-    vec3 lookat = vec3(-5, 0, 1);
-    float dist_to_focus = 10;
-    float aperture = 0;
-    camera cam(lookfrom, lookat, vec3(0,1,0), 60, float(nx) / float(ny), aperture, dist_to_focus, 0.0, 1.0);
-
-    clock_t startTime,endTime;
-    startTime = clock();
-    for (int j = ny-1; j >= 0; j--) {
-        for (int i = 0; i < nx; i++) {
+void paralle_ray_tracing_computation(
+        int ny_start, int ny_end, int nx_start, int nx_end,
+        int ns, camera& cam, hitable* world, std::vector<std::vector<std::vector<float>>>& res) {
+    auto ny = res.size();
+    auto nx = res[0].size();
+    for (int j = ny_end - 1; j >= ny_start; j--) {
+        for (int i = nx_start; i < nx_end; i++) {
             vec3 col(0, 0, 0);
             for (int s=0; s < ns; s++) {
                 float u = (i + drand48()) / float(nx);
@@ -156,16 +131,61 @@ int main(int argc, char** argv) {
                 col += color(r, world,0);
             }
             col /= float(ns);
-            col = vec3( sqrt(col[0]), sqrt(col[1]), sqrt(col[2]) );
-            auto ir = int(255.99*col[0]);
-            auto ig = int(255.99*col[1]);
-            auto ib = int(255.99*col[2]);
-            outfile << std::min(ir,255) << " " << std::min(ig,255) << " " << std::min(ib,255) << "\n";
+            col = vec3( sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
+            res[j][i][0] = (std::min(int(255.99*col[0]),255));
+            res[j][i][1] = (std::min(int(255.99*col[1]),255));
+            res[j][i][2] = (std::min(int(255.99*col[2]),255));
         }
     }
+}
+int main(int argc, char** argv) {
+    if(argc != 2)std::cout << "please specify output filename" << std::endl;
+    std::ofstream outfile;
+    outfile.open(argv[1], std::ios::out);
+    int nx = 200;
+    int ny = 100;
+    int ns = 5;
+    std::vector<std::vector<std::vector<float>>> res(ny);
+    for(int i = 0 ; i < ny ; i ++){
+        res[i] = std::vector<std::vector<float>>(nx);
+        for(int j = 0 ; j < nx ; j ++){
+            res[i][j] = std::vector<float>(3);
+        }
+    }
+    outfile << "P3\n" << nx << " " << ny << "\n255\n";
+    hitable* world = random_scene();
+    vec3 lookfrom = vec3(0, 0, 10);
+    vec3 lookat = vec3(-5, 0, 1);
+    float dist_to_focus = 10;
+    float aperture = 0;
+    camera cam(lookfrom, lookat, vec3(0,1,0), 60, float(nx) / float(ny), aperture, dist_to_focus, 0.0, 1.0);
+
+    clock_t startTime,endTime;
+    startTime = clock();
+    int ny_stride = 30;
+    int nx_stride = 30;
+
+    std::vector<std::thread> threads;
+    for(auto i = 0 ; i < ny ; i += ny_stride){
+        for(auto j = 0 ; j < nx ; j += nx_stride) {
+            auto ny_end = i + ny_stride > ny ? ny : i + ny_stride;
+            auto nx_end = j + nx_stride > nx ? nx : i + nx_stride;
+            threads.push_back(std::thread(paralle_ray_tracing_computation,
+                    i, ny_end, j, nx_end, ns, cam, world, res));
+        }
+    }
+    for(auto &thr : threads){
+        thr.join();
+    }
+    //写回文件
+    for(auto i = 0 ; i < ny ; i++){
+        for(auto j = 0 ; j < nx ; j++){
+            outfile << res[i][j][0] << " " << res[i][j][1] << " " << res[i][j][2] << "\n";
+        }
+    }
+    //outfile << std::min(ir,255) << " " << std::min(ig,255) << " " << std::min(ib,255) << "\n";
     endTime = clock();
     std::cout << "Total Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
     std::cout << "Total number of intersection tests: " << hitable::intersection_times << std::endl;
     outfile.close();
-
 }
