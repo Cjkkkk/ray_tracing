@@ -13,19 +13,12 @@
 
 class BVH : public hitable {
 public:
-    BVH(aabb box_, uint8_t depth_){
-        box = box_;
-        depth = depth_;
-        isLeaf = true;
-        child = std::vector<BVH*>(8);
-    }
+    BVH(aabb box_, uint8_t depth_): box(box_), depth(depth_), isLeaf(true), child(std::vector<BVH*>(8)){}
     ~BVH(){
-        for(auto ptr: child){
-            delete(ptr);
-        }
+        for(auto ptr: child) delete(ptr);
     }
-    virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec);
-    virtual bool bounding_box(float t0, float t1, aabb& box) const;
+    bool hit(const ray& r, float t_min, float t_max, hit_record& rec) override ;
+    bool bounding_box(float t0, float t1, aabb& box) const override;
     aabb box;
     bool isLeaf;
     uint8_t depth;

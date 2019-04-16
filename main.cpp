@@ -220,7 +220,7 @@ int main(int argc, char** argv) {
             }
         }
         endTime = clock();
-        std::cout << "Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
+        std::cout << "Total Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
         outfile.close();
     }
 }
