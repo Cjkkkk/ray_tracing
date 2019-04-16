@@ -41,6 +41,9 @@ bool triangle::hit(const ray& r, float t_min, float t_max, hit_record& rec) {
             rec.normal = N;
             rec.mat_ptr = mat_ptr;
             rec.t = t;
+//            vec3 middle = (v1 + v2) / 2;
+//            auto middle_length = (middle - v0).length();
+//            rec.u = (middle - p).length() / middle_length;
             return true;
         }
     }

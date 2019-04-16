@@ -27,3 +27,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 |--------------------|-------------|---------------------|
 | 487 random spheres | 17.955s / 12.098s | 4.0e8 / 2.4e6|
 | cornell box (18 rectangle ) | 1.28s / 3.497s    | 1.5e7 / 2.8e6|
+
+
+| scene              | running time (single/multi) threads |
+|--------------------|----------------------------------|
+| 487 random spheres | 34.913s / 33.43s |

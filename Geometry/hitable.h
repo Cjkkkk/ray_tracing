@@ -86,13 +86,12 @@ aabb surrounding_box(aabb box0, aabb box1) {
 
 class hitable  {
 public:
-    static int intersection_times;
+    static std::atomic<int> intersection_times;
     void increaseIntersectionTimes(){
         intersection_times += 1;
     }
     virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) = 0;
     virtual bool bounding_box(float t0, float t1, aabb& box) const = 0; // 获得物体的bounding cornell_box
-//    int number_of_ray_object_test = 0 ;
 };
 
 
