@@ -30,7 +30,8 @@ vec3 color(const ray& r, hitable *world, int depth) {
         ray scattered;
         vec3 attenuation;
         vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
-        if (depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
+        if (depth < 20 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
+            //std::cout << attenuation << "\n";
             return emitted + attenuation * color(scattered, world, depth+1);
             // 一般物体材质不发光 第一项为0 发光物体不散射 返回亮度
         }
@@ -39,7 +40,7 @@ vec3 color(const ray& r, hitable *world, int depth) {
         }
     }
     else {
-        return vec3(1, 1, 1); // 环境光
+        return vec3(0, 0, 0); // 环境光
     }
 }
 hitable *cornel_box_(){
@@ -107,6 +108,16 @@ hitable *earth() {
     return new sphere(vec3(0, 3, 0), 2, mat);
 }
 
+hitable *brdf_() {
+    hitable **list = new hitable* [3];
+    auto text = new const_texture(vec3(0.5, 0.8, 0.7));
+    auto mat = new brdf(text, 0.04, 0.35);
+    list[0] = new sphere(vec3(0, 5, 0), 4, mat);
+    list[1] = new sphere(vec3(10, 5, 0), 4, new lambertian(text));
+    list[2] = new sphere(vec3(5, 15, 5), 5, new diffuse_light(new const_texture(vec3(1,1,1))));
+    return new hitable_list(list, 3);
+}
+
 hitable *simple_triangle(){
     hitable **list = new hitable*[2];
     list[0] = new triangle(vec3(-2, 0, 0), vec3(2, 0, 0), vec3(0, 2, 0), new diffuse_light(new const_texture(vec3(0, 1, 0))));
@@ -143,9 +154,9 @@ int main(int argc, char** argv) {
     if(argc != 2)std::cout << "please specify output filename" << std::endl;
     std::ofstream outfile;
     outfile.open(argv[1], std::ios::out);
-    int nx = 400;
-    int ny = 200;
-    int ns = 20;
+    int nx = 1000;
+    int ny = 500;
+    int ns = 50;
     std::vector<std::vector<std::vector<float>>> res(ny);
     for(int i = 0 ; i < ny ; i ++){
         res[i] = std::vector<std::vector<float>>(nx);
@@ -154,16 +165,22 @@ int main(int argc, char** argv) {
         }
     }
     outfile << "P3\n" << nx << " " << ny << "\n255\n";
-    hitable* world = random_scene();
+//    hitable* world = random_scene();
 //    vec3 lookfrom = vec3(0, 0, 10);
 //    vec3 lookat = vec3(-5, 0, 1);
-    vec3 lookfrom = vec3(13, 2, 3);
-    vec3 lookat = vec3(0, 0, 0);
+//    vec3 lookfrom = vec3(13, 2, 3);
+//    vec3 lookat = vec3(0, 0, 0);
+//    hitable* world = cornel_box_();
+//    vec3 lookfrom = vec3(278, 278, -800);
+//    vec3 lookat = vec3(278, 278, 0);
+    hitable* world = brdf_();
+    vec3 lookfrom = vec3(5, 5, 20);
+    vec3 lookat = vec3(5, 5, 0);
     float dist_to_focus = (lookfrom - lookat).length();
     float aperture = 0;
     camera cam(lookfrom, lookat, vec3(0,1,0), 60, float(nx) / float(ny), aperture, dist_to_focus, 0.0, 1.0);
 
-    bool ENABLE_MULTI_THREAD = false;
+    bool ENABLE_MULTI_THREAD = true;
     if(ENABLE_MULTI_THREAD){
         clock_t startTime,endTime;
         startTime = clock();
@@ -177,7 +194,6 @@ int main(int argc, char** argv) {
             for(nx_start = 0 ; nx_start < nx ; nx_start += nx_stride) {
                 ny_end = ny_start + ny_stride > ny ? ny : ny_start + ny_stride;
                 nx_end = nx_start + nx_stride > nx ? nx : nx_start + nx_stride;
-//            resources[i_idx][j_idx] = {i, ny_end, j, nx_end};
                 threads.emplace_back(std::thread(parallel_ray_tracing_computation,
                                                  ny_start, ny_end, nx_start, nx_end, ns, cam, world, std::ref(res)));
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -221,6 +237,7 @@ int main(int argc, char** argv) {
         }
         endTime = clock();
         std::cout << "Total Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
+        std::cout << "Total number of intersection tests: " << hitable::intersection_times << std::endl;
         outfile.close();
     }
 }

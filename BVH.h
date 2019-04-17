@@ -114,6 +114,7 @@ bool BVH::hit(const ray &r, float t_min, float t_max, hit_record &rec) {
                     ans = true;
                 }
             }
+            //if(ans) return true;
         } else {
             for(auto child: item->child) {
                 if(child && child->box.hit(r, t_min, t_max, rec)) {

@@ -7,10 +7,12 @@
 
 struct hit_record;
 
+#include <math.h>
 #include "../ray.h"
 #include "../Geometry/hitable.h"
 #include "texture.h"
 #include "../Utils/s_random.h"
+#include "../vec3.h"
 
 // 让折射率随着角度的变化而变化
 float schlick(float cosine, float ref_idx) {
@@ -62,6 +64,74 @@ public:
     virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const { return false; }
     virtual vec3 emitted(float u, float v, const vec3& p) const { return emit->value(u, v, p); }
     texture *emit;
+};
+
+// brdf
+
+float GeometrySchlickGGX(float NdotV, float k)
+{
+    float nom   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+
+    return nom / denom;
+}
+
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
+{
+    float NdotV = std::max<float>(dot(N, V), 0.0);
+    float NdotL = std::max<float>(dot(N, L), 0.0);
+    float ggx1 = GeometrySchlickGGX(NdotV, k);
+    float ggx2 = GeometrySchlickGGX(NdotL, k);
+
+    return ggx1 * ggx2;
+}
+
+float D_GGX_TR(vec3 N, vec3 H, float a)
+{
+    float a2     = a*a;
+    float NdotH  = std::max<float>(dot(N,H), 0.0);
+    float NdotH2 = NdotH*NdotH;
+
+    auto denom = M_PI * pow(NdotH2 * (a2 - 1.0) + 1.0, 2);
+
+    return a2 / denom;
+}
+
+float schlick_(float cosine, float ref) {
+    return ref + (1-ref)*pow((1 - cosine),5);
+}
+
+class brdf : public material  {
+public:
+    brdf(texture *a, float F0_, float alpha_) : albedo(a), F0(F0_), alpha(alpha_) {}
+    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const {
+        //fr=kdflambert+ksfcook−torrance
+        // 出射光线
+//        vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
+//        scattered = ray(rec.p, reflected, r_in.time());
+        vec3 target = rec.p + rec.normal + random_in_unit_sphere();
+        scattered = ray(rec.p, target-rec.p, r_in.time());
+        vec3 N = rec.normal; // 法向量
+        vec3 V = -r_in.direction();
+        vec3 L = scattered.direction();
+        N.make_unit_vector();
+        V.make_unit_vector();
+        L.make_unit_vector();
+        vec3 H = V + L;
+        H.make_unit_vector();
+        float cosTheta = std::max<float>(dot(N, L), 0.0); // 入射光线与法线的夹角
+        float sch = schlick_(cosTheta, F0);
+        vec3 lambert = ( 1 - sch) * albedo->value(rec.u, rec.v, rec.p) / M_PI;
+        vec3 cook_torrance = sch
+                * D_GGX_TR(N, H, alpha)
+                * GeometrySmith(N, V, L, alpha*alpha/2)
+                * vec3(sch, sch, sch) / ( 4 * std::max<float>(dot(L, N),0.0) * std::max<float>(dot(V, N),0.0) + 0.001);
+        attenuation = (lambert + cook_torrance) * cosTheta * 5;
+        //std::cout << " " << sch << " " << attenuation << "\n";
+        return true;
+    };
+    float F0 , alpha;
+    texture *albedo;
 };
 
 class lambertian : public material {
