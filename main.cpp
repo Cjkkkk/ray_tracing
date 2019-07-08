@@ -129,29 +129,6 @@ hitable *simple_triangle(){
 
 std::atomic<int> hitable::intersection_times = {0};
 
-//void parallel_ray_tracing_computation(
-//        int ny_start, int ny_end, int nx_start, int nx_end,
-//        int ns, camera& cam, hitable* world, std::vector<std::vector<std::vector<float>>>& res) {
-//    auto ny = res.size();
-//    auto nx = res[0].size();
-//    for (int j = ny_start; j < ny_end; j++) {
-//        for (int i = nx_start; i < nx_end; i++) {
-//            vec3 col(0, 0, 0);
-//            for (int s=0; s < ns; s++) {
-//                float u = (i + drand48()) / float(nx);
-//                float v = (j + drand48()) / float(ny);
-//                ray r = cam.get_ray(u, v);
-//                vec3 p = r.point_at_parameter(2.0);
-//                col += color(r, world,0);
-//            }
-//            col /= float(ns);
-//            col = vec3( sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
-//            res[j][i][0] = (std::min(int(255.99f * col[0]),255));
-//            res[j][i][1] = (std::min(int(255.99f * col[1]),255));
-//            res[j][i][2] = (std::min(int(255.99f * col[2]),255));
-//        }
-//    }
-//}
 int main(int argc, char** argv) {
     if(argc != 2)std::cout << "please specify output filename" << std::endl;
     std::ofstream outfile;
