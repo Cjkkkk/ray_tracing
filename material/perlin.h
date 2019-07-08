@@ -31,9 +31,9 @@ public:
         float u = p.x() - floor(p.x());
         float v = p.y() - floor(p.y());
         float w = p.z() - floor(p.z());
-        int i = floor(p.x());
-        int j = floor(p.y());
-        int k = floor(p.z());
+        int i = static_cast<int>(floor(p.x()));
+        int j = static_cast<int>(floor(p.y()));
+        int k = static_cast<int>(floor(p.z()));
         vec3 c[2][2][2];
         for (int di=0; di < 2; di++)
             for (int dj=0; dj < 2; dj++)

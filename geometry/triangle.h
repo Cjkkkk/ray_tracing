@@ -54,11 +54,11 @@ bool triangle:: bounding_box(float t0, float t1, aabb& box) const {
     box = aabb(vec3(
             std::min(std::min(v0.x(), v1.x()), v2.x()),
             std::min(std::min(v0.y(), v1.y()), v2.y()),
-            std::min(std::min(v0.z(), v1.z()), v2.z()) - 0.0001
+            std::min(std::min(v0.z(), v1.z()), v2.z()) - 0.0001f
             ), vec3(
             std::max(std::max(v0.x(), v1.x()), v2.x()),
             std::max(std::max(v0.y(), v1.y()), v2.y()),
-            std::max(std::max(v0.z(), v1.z()), v2.z()) + 0.0001
+            std::max(std::max(v0.z(), v1.z()), v2.z()) + 0.0001f
             ));
     return true;
 }

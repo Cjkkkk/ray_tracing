@@ -5,6 +5,7 @@
 #ifndef RAY_TRACING_HITABLE_H
 #define RAY_TRACING_HITABLE_H
 
+#include <atomic>
 #include "../ray.h"
 
 class material;

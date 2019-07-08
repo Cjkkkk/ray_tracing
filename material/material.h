@@ -8,6 +8,7 @@
 struct hit_record;
 
 #include <math.h>
+#include <algorithm>
 #include "../ray.h"
 #include "../Geometry/hitable.h"
 #include "texture.h"
@@ -26,7 +27,7 @@ float schlick(float cosine, float ref_idx) {
 bool refract(const vec3& v, const vec3& n, float ni_over_nt, vec3& refracted) {
     vec3 uv = unit_vector(v);
     float dt = dot(uv, n);//得到cos
-    float discriminant = 1.0 - ni_over_nt*ni_over_nt*(1-dt*dt);
+    float discriminant = 1.0f - ni_over_nt * ni_over_nt * ( 1 - dt * dt);
     if (discriminant > 0) {
         refracted = ni_over_nt*(uv - n*dt) - n*sqrt(discriminant);
         return true;
@@ -71,7 +72,7 @@ public:
 float GeometrySchlickGGX(float NdotV, float k)
 {
     float nom   = NdotV;
-    float denom = NdotV * (1.0 - k) + k;
+    float denom = NdotV * (1.0f - k) + k;
 
     return nom / denom;
 }
@@ -92,13 +93,13 @@ float D_GGX_TR(vec3 N, vec3 H, float a)
     float NdotH  = std::max<float>(dot(N,H), 0.0);
     float NdotH2 = NdotH*NdotH;
 
-    auto denom = M_PI * pow(NdotH2 * (a2 - 1.0) + 1.0, 2);
+    float denom = M_PI * pow ( NdotH2 * ( a2 - 1.0f ) + 1.0f, 2);
 
     return a2 / denom;
 }
 
 float schlick_(float cosine, float ref) {
-    return ref + (1-ref)*pow((1 - cosine),5);
+    return ref + ( 1 - ref ) * pow(( 1 - cosine), 5);
 }
 
 class brdf : public material  {
@@ -124,8 +125,8 @@ public:
         vec3 lambert = ( 1 - sch) * albedo->value(rec.u, rec.v, rec.p) / M_PI;
         vec3 cook_torrance = sch
                 * D_GGX_TR(N, H, alpha)
-                * GeometrySmith(N, V, L, alpha*alpha/2)
-                * vec3(sch, sch, sch) / ( 4 * std::max<float>(dot(L, N),0.0) * std::max<float>(dot(V, N),0.0) + 0.001);
+                * GeometrySmith(N, V, L, alpha*alpha / 2)
+                * vec3(sch, sch, sch) / ( 4 * std::max<float>(dot(L, N), 0.0f) * std::max<float>(dot(V, N), 0.0f) + 0.001f);
         attenuation = (lambert + cook_torrance) * cosTheta * 5;
         //std::cout << " " << sch << " " << attenuation << "\n";
         return true;
@@ -182,7 +183,7 @@ public:
         // 从空气射向玻璃
         else {
             outward_normal = rec.normal;
-            ni_over_nt = 1.0 / ref_idx;
+            ni_over_nt = 1.0f / ref_idx;
             cosine = -dot(r_in.direction(), rec.normal) / r_in.direction().length();
         }
         // 判断是否发生全反射

@@ -3,9 +3,11 @@
 #include <fstream>
 #include <ctime>
 #include <thread>
-#include <zconf.h>
+
+#if defined(__MINGW32__) && defined(__GNUC__)
 #include "include/mingw.thread.h"
 #include "include/mingw.mutex.h"
+#endif
 #include "Geometry/hitable.h"
 #include "Geometry/sphere.h"
 #include "Geometry/moving_sphere.h"
@@ -26,7 +28,7 @@
 
 vec3 color(const ray& r, hitable *world, int depth) {
     hit_record rec;
-    if (world->hit(r, 0.001, std::numeric_limits<float>::max(), rec)) {
+    if (world->hit(r, 0.001f, std::numeric_limits<float>::max(), rec)) {
         ray scattered;
         vec3 attenuation;
         vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
@@ -46,9 +48,9 @@ vec3 color(const ray& r, hitable *world, int depth) {
 hitable *cornel_box_(){
     hitable **list = new hitable*[8];
     int i = 0;
-    material *red = new lambertian(new const_texture(vec3(0.65, 0.05, 0.05)));
-    material *white = new lambertian(new const_texture(vec3(0.73, 0.73, 0.73)));
-    material *green = new lambertian(new const_texture(vec3(0.12, 0.45, 0.15)));
+    material *red = new lambertian(new const_texture(vec3(0.65f, 0.05f, 0.05f)));
+    material *white = new lambertian(new const_texture(vec3(0.73f, 0.73f, 0.73f)));
+    material *green = new lambertian(new const_texture(vec3(0.12f, 0.45f, 0.15f)));
     material *light = new diffuse_light(new const_texture(vec3(15, 15, 15)));
     list[i++] = new flip(new yz_rect(0, 555, 0, 555, 555 ,green));
     list[i++] = new yz_rect(0, 555, 0, 555, 0, red);
@@ -74,30 +76,30 @@ hitable *simple_light(){
 hitable* random_scene(){
     int n = 486;
     hitable **list = new hitable* [n];
-    texture *checker = new checker_texture(new const_texture(vec3(0.2, 0.3, 0.1)), new const_texture(vec3(0.9, 0.9, 0.9)));
+    texture *checker = new checker_texture(new const_texture(vec3(0.2f, 0.3f, 0.1f)), new const_texture(vec3(0.9f, 0.9f, 0.9f)));
     list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(checker));
     int i = 1;
     for(int a = -11; a < 11 ; a++){
         for(int b = -11 ; b < 11 ; b++){
             float choose_mat = drand48();
-            vec3 center(a+0.9*drand48(), 0.2, b+0.9*drand48());
-            if((center - vec3(4,0.2,0)).length() > 0.9){
+            vec3 center(a + 0.9f * drand48(), 0.2f , b + 0.9f * drand48());
+            if((center - vec3(4, 0.2f, 0)).length() > 0.9f){
                 if(choose_mat < 0.8){
                     //list[i++] = new moving_sphere(center, center + vec3(0, 0.5*drand48(), 0), 0.0, 1.0, 0.2,
                             //new lambertian(new const_texture(vec3(drand48()*drand48(),drand48()* drand48(), drand48()*drand48()))));
-                    list[i++] = new sphere(center, 0.2, new lambertian(new const_texture(vec3(drand48()*drand48(),drand48()* drand48(), drand48()*drand48()))));
-                }else if(choose_mat < 0.95){
-                    list[i++] = new sphere(center, 0.2, new metal(vec3(0.5*(1+drand48()), 0.5*(1+drand48()),0.5*(1+drand48())), 0.5*drand48()));
+                    list[i++] = new sphere(center, 0.2f, new lambertian(new const_texture(vec3(drand48()*drand48(),drand48()* drand48(), drand48()*drand48()))));
+                }else if(choose_mat < 0.95f){
+                    list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5f*(1+drand48()), 0.5f*(1+drand48()),0.5f*(1+drand48())), 0.5f*drand48()));
                 }else{
-                    list[i++] = new sphere(center, 0.2, new dielectric(1.5));
+                    list[i++] = new sphere(center, 0.2f, new dielectric(1.5f));
                 }
             }
         }
     }
-    list[i++] = new sphere(vec3(0,1,0), 1.0, new dielectric(1.5));
-    list[i++] = new sphere(vec3(-4,1,0), 1.0, new lambertian(new const_texture(vec3(0.4,0.2,0.1))));
-    list[i++] = new sphere(vec3(4,1,0),1.0, new metal(vec3(0.7,0.6,0.6), 0.0));
-    return getBVHHierarchy(list, n, 0.001, FLT_MAX);
+    list[i++] = new sphere(vec3(0, 1, 0), 1.0f, new dielectric(1.5));
+    list[i++] = new sphere(vec3(-4, 1, 0), 1.0f, new lambertian(new const_texture(vec3(0.4f, 0.2f, 0.1f))));
+    list[i++] = new sphere(vec3(4, 1, 0),1.0f, new metal(vec3(0.7f, 0.6f, 0.6f), 0.0f));
+    return getBVHHierarchy(list, n, 0.001f, FLT_MAX);
     return new hitable_list(list, i);
 }
 
@@ -110,8 +112,8 @@ hitable *earth() {
 
 hitable *brdf_() {
     hitable **list = new hitable* [3];
-    auto text = new const_texture(vec3(0.5, 0.8, 0.7));
-    auto mat = new brdf(text, 0.04, 0.35);
+    auto text = new const_texture(vec3(0.5f, 0.8f, 0.7f));
+    auto mat = new brdf(text, 0.04f, 0.35f);
     list[0] = new sphere(vec3(0, 5, 0), 4, mat);
     list[1] = new sphere(vec3(10, 5, 0), 4, new lambertian(text));
     list[2] = new sphere(vec3(5, 15, 5), 5, new diffuse_light(new const_texture(vec3(1,1,1))));
@@ -122,41 +124,41 @@ hitable *simple_triangle(){
     hitable **list = new hitable*[2];
     list[0] = new triangle(vec3(-2, 0, 0), vec3(2, 0, 0), vec3(0, 2, 0), new diffuse_light(new const_texture(vec3(0, 1, 0))));
     list[1] = new triangle(vec3(-1, 1, 1), vec3(3, 1, 1), vec3(1, 3, 1), new diffuse_light(new const_texture(vec3(1, 0, 0))));
-    return getBVHHierarchy(list, 2, 0.001, FLT_MAX);
+    return getBVHHierarchy(list, 2, 0.001f, FLT_MAX);
 }
 
 std::atomic<int> hitable::intersection_times = {0};
 
-void parallel_ray_tracing_computation(
-        int ny_start, int ny_end, int nx_start, int nx_end,
-        int ns, camera& cam, hitable* world, std::vector<std::vector<std::vector<float>>>& res) {
-    auto ny = res.size();
-    auto nx = res[0].size();
-    for (int j = ny_start; j < ny_end; j++) {
-        for (int i = nx_start; i < nx_end; i++) {
-            vec3 col(0, 0, 0);
-            for (int s=0; s < ns; s++) {
-                float u = (i + drand48()) / float(nx);
-                float v = (j + drand48()) / float(ny);
-                ray r = cam.get_ray(u, v);
-                vec3 p = r.point_at_parameter(2.0);
-                col += color(r, world,0);
-            }
-            col /= float(ns);
-            col = vec3( sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
-            res[j][i][0] = (std::min(int(255.99*col[0]),255));
-            res[j][i][1] = (std::min(int(255.99*col[1]),255));
-            res[j][i][2] = (std::min(int(255.99*col[2]),255));
-        }
-    }
-}
+//void parallel_ray_tracing_computation(
+//        int ny_start, int ny_end, int nx_start, int nx_end,
+//        int ns, camera& cam, hitable* world, std::vector<std::vector<std::vector<float>>>& res) {
+//    auto ny = res.size();
+//    auto nx = res[0].size();
+//    for (int j = ny_start; j < ny_end; j++) {
+//        for (int i = nx_start; i < nx_end; i++) {
+//            vec3 col(0, 0, 0);
+//            for (int s=0; s < ns; s++) {
+//                float u = (i + drand48()) / float(nx);
+//                float v = (j + drand48()) / float(ny);
+//                ray r = cam.get_ray(u, v);
+//                vec3 p = r.point_at_parameter(2.0);
+//                col += color(r, world,0);
+//            }
+//            col /= float(ns);
+//            col = vec3( sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
+//            res[j][i][0] = (std::min(int(255.99f * col[0]),255));
+//            res[j][i][1] = (std::min(int(255.99f * col[1]),255));
+//            res[j][i][2] = (std::min(int(255.99f * col[2]),255));
+//        }
+//    }
+//}
 int main(int argc, char** argv) {
     if(argc != 2)std::cout << "please specify output filename" << std::endl;
     std::ofstream outfile;
     outfile.open(argv[1], std::ios::out);
-    int nx = 1000;
-    int ny = 500;
-    int ns = 50;
+    int nx = 500;
+    int ny = 250;
+    int ns = 500;
     std::vector<std::vector<std::vector<float>>> res(ny);
     for(int i = 0 ; i < ny ; i ++){
         res[i] = std::vector<std::vector<float>>(nx);
@@ -170,74 +172,38 @@ int main(int argc, char** argv) {
 //    vec3 lookat = vec3(-5, 0, 1);
 //    vec3 lookfrom = vec3(13, 2, 3);
 //    vec3 lookat = vec3(0, 0, 0);
-//    hitable* world = cornel_box_();
-//    vec3 lookfrom = vec3(278, 278, -800);
-//    vec3 lookat = vec3(278, 278, 0);
-    hitable* world = brdf_();
-    vec3 lookfrom = vec3(5, 5, 20);
-    vec3 lookat = vec3(5, 5, 0);
+    hitable* world = cornel_box_();
+    vec3 lookfrom = vec3(278, 278, -800);
+    vec3 lookat = vec3(278, 278, 0);
+//    hitable* world = brdf_();
+//    vec3 lookfrom = vec3(5, 5, 20);
+//    vec3 lookat = vec3(5, 5, 0);
     float dist_to_focus = (lookfrom - lookat).length();
     float aperture = 0;
     camera cam(lookfrom, lookat, vec3(0,1,0), 60, float(nx) / float(ny), aperture, dist_to_focus, 0.0, 1.0);
+    clock_t startTime,endTime;
+    startTime = clock();
 
-    bool ENABLE_MULTI_THREAD = true;
-    if(ENABLE_MULTI_THREAD){
-        clock_t startTime,endTime;
-        startTime = clock();
-        int ny_stride = ny / 2;
-        int nx_stride = nx / 2;
-
-        std::vector<std::thread> threads;
-
-        int ny_start, ny_end, nx_start, nx_end;
-        for(ny_start = 0 ; ny_start < ny ; ny_start += ny_stride){
-            for(nx_start = 0 ; nx_start < nx ; nx_start += nx_stride) {
-                ny_end = ny_start + ny_stride > ny ? ny : ny_start + ny_stride;
-                nx_end = nx_start + nx_stride > nx ? nx : nx_start + nx_stride;
-                threads.emplace_back(std::thread(parallel_ray_tracing_computation,
-                                                 ny_start, ny_end, nx_start, nx_end, ns, cam, world, std::ref(res)));
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    for (int j = ny-1; j >= 0; j--) {
+        for (int i = 0; i < nx; i++) {
+            vec3 col(0, 0, 0);
+            for (int s=0; s < ns; s++) {
+                float u = (i + drand48()) / float(nx);
+                float v = (j + drand48()) / float(ny);
+                ray r = cam.get_ray(u, v);
+                vec3 p = r.point_at_parameter(2.0);
+                col += color(r, world,0);
             }
+            col /= float(ns);
+            col = vec3( sqrt(col[0]), sqrt(col[1]), sqrt(col[2]) );
+            int ir = int(255.99*col[0]);
+            int ig = int(255.99*col[1]);
+            int ib = int(255.99*col[2]);
+            outfile << std::min(ir,255) << " " << std::min(ig,255) << " " << std::min(ib,255) << "\n";
         }
-        for(auto &thr : threads){
-            thr.join();
-        }
-        //写回文件
-        for(auto i = ny-1 ; i >= 0 ; i--){
-            for(auto j = 0 ; j < nx ; j++){
-                outfile << res[i][j][0] << " " << res[i][j][1] << " " << res[i][j][2] << "\n";
-            }
-        }
-        //outfile << std::min(ir,255) << " " << std::min(ig,255) << " " << std::min(ib,255) << "\n";
-        endTime = clock();
-        std::cout << "Total Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
-        std::cout << "Total number of intersection tests: " << hitable::intersection_times << std::endl;
-        outfile.close();
-    } else {
-        clock_t startTime,endTime;
-        startTime = clock();
-
-        for (int j = ny-1; j >= 0; j--) {
-            for (int i = 0; i < nx; i++) {
-                vec3 col(0, 0, 0);
-                for (int s=0; s < ns; s++) {
-                    float u = (i + drand48()) / float(nx);
-                    float v = (j + drand48()) / float(ny);
-                    ray r = cam.get_ray(u, v);
-                    vec3 p = r.point_at_parameter(2.0);
-                    col += color(r, world,0);
-                }
-                col /= float(ns);
-                col = vec3( sqrt(col[0]), sqrt(col[1]), sqrt(col[2]) );
-                int ir = int(255.99*col[0]);
-                int ig = int(255.99*col[1]);
-                int ib = int(255.99*col[2]);
-                outfile << std::min(ir,255) << " " << std::min(ig,255) << " " << std::min(ib,255) << "\n";
-            }
-        }
-        endTime = clock();
-        std::cout << "Total Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
-        std::cout << "Total number of intersection tests: " << hitable::intersection_times << std::endl;
-        outfile.close();
     }
+    endTime = clock();
+    std::cout << "Total Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
+    std::cout << "Total number of intersection tests: " << hitable::intersection_times << std::endl;
+    outfile.close();
 }
