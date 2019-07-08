@@ -3,7 +3,7 @@
 #include <fstream>
 #include <ctime>
 #include <thread>
-
+#include <future>
 #if defined(__MINGW32__) && defined(__GNUC__)
 #include "include/mingw.thread.h"
 #include "include/mingw.mutex.h"
@@ -156,9 +156,9 @@ int main(int argc, char** argv) {
     if(argc != 2)std::cout << "please specify output filename" << std::endl;
     std::ofstream outfile;
     outfile.open(argv[1], std::ios::out);
-    int nx = 500;
-    int ny = 250;
-    int ns = 500;
+    const int nx = 500;
+    const int ny = 250;
+    int ns = 200;
     std::vector<std::vector<std::vector<float>>> res(ny);
     for(int i = 0 ; i < ny ; i ++){
         res[i] = std::vector<std::vector<float>>(nx);
@@ -184,24 +184,39 @@ int main(int argc, char** argv) {
     clock_t startTime,endTime;
     startTime = clock();
 
-    for (int j = ny-1; j >= 0; j--) {
-        for (int i = 0; i < nx; i++) {
-            vec3 col(0, 0, 0);
-            for (int s=0; s < ns; s++) {
-                float u = (i + drand48()) / float(nx);
-                float v = (j + drand48()) / float(ny);
-                ray r = cam.get_ray(u, v);
-                vec3 p = r.point_at_parameter(2.0);
-                col += color(r, world,0);
+    std::vector<std::vector<vec3>> pixel(
+            ny,std::vector<vec3>(nx));
+    std::size_t cores = std::thread::hardware_concurrency();
+    std::vector<std::future<void>> future_vector;
+    for (std::size_t core(0); core < cores; ++core) {
+        future_vector.emplace_back(std::async([=, &cam, &pixel]() {
+            for (int j = core; j < ny; j+=cores) {
+                for (int i = 0; i < nx; i+=1) {
+                    vec3 col(0, 0, 0);
+                    for (int s=0; s < ns; s++) {
+                        float u = (i + drand48()) / float(nx);
+                        float v = (j + drand48()) / float(ny);
+                        ray r = cam.get_ray(u, v);
+//                        vec3 p = r.point_at_parameter(2.0);
+                        col += color(r, world,0);
+                    }
+                    col /= float(ns);
+                    col = vec3( sqrt(col[0]), sqrt(col[1]), sqrt(col[2]) );
+//                    int ir = int(255.99*col[0]);
+//                    int ig = int(255.99*col[1]);
+//                    int ib = int(255.99*col[2]);
+                    pixel[j][i] = vec3{std::min(255.99f*col[0],255.0f), std::min(255.99f*col[1],255.0f), std::min(255.99f*col[2],255.0f)};
+                }
             }
-            col /= float(ns);
-            col = vec3( sqrt(col[0]), sqrt(col[1]), sqrt(col[2]) );
-            int ir = int(255.99*col[0]);
-            int ig = int(255.99*col[1]);
-            int ib = int(255.99*col[2]);
-            outfile << std::min(ir,255) << " " << std::min(ig,255) << " " << std::min(ib,255) << "\n";
-        }
+        }));
     }
+    for (auto &f : future_vector) {
+        f.get();
+    }
+    for (int j = ny - 1 ; j >= 0 ; j --)
+        for ( int i = 0 ; i < nx ; i ++ )
+            outfile << static_cast<int>(pixel[j][i].x()) << " " << static_cast<int>(pixel[j][i].y()) << " " << static_cast<int>(pixel[j][i].z()) << "\n";
+
     endTime = clock();
     std::cout << "Total Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;
     std::cout << "Total number of intersection tests: " << hitable::intersection_times << std::endl;
