@@ -133,9 +133,9 @@ int main(int argc, char** argv) {
     if(argc != 2)std::cout << "please specify output filename" << std::endl;
     std::ofstream outfile;
     outfile.open(argv[1], std::ios::out);
-    const int nx = 500;
-    const int ny = 250;
-    int ns = 200;
+    const int nx = 200;
+    const int ny = 100;
+    int ns = 20;
     std::vector<std::vector<std::vector<float>>> res(ny);
     for(int i = 0 ; i < ny ; i ++){
         res[i] = std::vector<std::vector<float>>(nx);
