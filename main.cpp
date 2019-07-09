@@ -17,7 +17,7 @@
 #include "Material/texture.h"
 #include "Utils/s_random.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include "Utils/stb_image.h"
+#include "include/stb_image.h"
 #include "BVH.h"
 #include "Geometry/rectangle.h"
 #include "Geometry/flip.h"
