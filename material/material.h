@@ -10,9 +10,9 @@ struct hit_record;
 #include <math.h>
 #include <algorithm>
 #include "../ray.h"
-#include "../Geometry/hitable.h"
+#include "../geometry/hitable.h"
 #include "texture.h"
-#include "../Utils/s_random.h"
+#include "../utils/s_random.h"
 #include "../vec3.h"
 
 // 让折射率随着角度的变化而变化

@@ -7,9 +7,9 @@
 
 #include <vector>
 #include <queue>
-#include "Geometry/hitable.h"
-#include "Geometry/hitablelist.h"
-#include "Geometry/triangle.h"
+#include "geometry/hitable.h"
+#include "geometry/hitablelist.h"
+#include "geometry/triangle.h"
 
 class BVH : public hitable {
 public:

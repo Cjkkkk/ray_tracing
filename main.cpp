@@ -8,23 +8,23 @@
 #include "include/mingw.thread.h"
 #include "include/mingw.mutex.h"
 #endif
-#include "Geometry/hitable.h"
-#include "Geometry/sphere.h"
-#include "Geometry/moving_sphere.h"
-#include "Geometry/hitablelist.h"
+#include "geometry/hitable.h"
+#include "geometry/sphere.h"
+#include "geometry/moving_sphere.h"
+#include "geometry/hitablelist.h"
 #include "camera.h"
-#include "Material/material.h"
-#include "Material/texture.h"
-#include "Utils/s_random.h"
+#include "material/material.h"
+#include "material/texture.h"
+#include "utils/s_random.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "include/stb_image.h"
 #include "BVH.h"
-#include "Geometry/rectangle.h"
-#include "Geometry/flip.h"
-#include "Geometry/cornell_box.h"
-#include "Geometry/rotate_y.h"
-#include "Geometry/translate.h"
-#include "Geometry/triangle.h"
+#include "geometry/rectangle.h"
+#include "geometry/flip.h"
+#include "geometry/cornell_box.h"
+#include "geometry/rotate_y.h"
+#include "geometry/translate.h"
+#include "geometry/triangle.h"
 
 vec3 color(const ray& r, hitable *world, int depth) {
     hit_record rec;
@@ -45,6 +45,8 @@ vec3 color(const ray& r, hitable *world, int depth) {
         return vec3(0, 0, 0); // 环境光
     }
 }
+
+
 hitable *cornel_box_(){
     hitable **list = new hitable*[8];
     int i = 0;
@@ -63,6 +65,8 @@ hitable *cornel_box_(){
     return new hitable_list(list, i);
     //return getBVHHierarchy(list, 8, 0.001, FLT_MAX);
 }
+
+
 hitable *simple_light(){
     texture *pertex = new noise_texture(4);
     hitable **list = new hitable*[4];
@@ -73,6 +77,8 @@ hitable *simple_light(){
     //return getBVHHierarchy(list, 4, 0.001, FLT_MAX);
     return new hitable_list(list, 4);
 }
+
+
 hitable* random_scene(){
     int n = 486;
     hitable **list = new hitable* [n];
@@ -110,16 +116,6 @@ hitable *earth() {
     return new sphere(vec3(0, 3, 0), 2, mat);
 }
 
-hitable *brdf_() {
-    hitable **list = new hitable* [3];
-    auto text = new const_texture(vec3(0.5f, 0.8f, 0.7f));
-    auto mat = new brdf(text, 0.04f, 0.35f);
-    list[0] = new sphere(vec3(0, 5, 0), 4, mat);
-    list[1] = new sphere(vec3(10, 5, 0), 4, new lambertian(text));
-    list[2] = new sphere(vec3(5, 15, 5), 5, new diffuse_light(new const_texture(vec3(1,1,1))));
-    return new hitable_list(list, 3);
-}
-
 hitable *simple_triangle(){
     hitable **list = new hitable*[2];
     list[0] = new triangle(vec3(-2, 0, 0), vec3(2, 0, 0), vec3(0, 2, 0), new diffuse_light(new const_texture(vec3(0, 1, 0))));
@@ -144,25 +140,19 @@ int main(int argc, char** argv) {
         }
     }
     outfile << "P3\n" << nx << " " << ny << "\n255\n";
-//    hitable* world = random_scene();
-//    vec3 lookfrom = vec3(0, 0, 10);
-//    vec3 lookat = vec3(-5, 0, 1);
-//    vec3 lookfrom = vec3(13, 2, 3);
-//    vec3 lookat = vec3(0, 0, 0);
+
     hitable* world = cornel_box_();
     vec3 lookfrom = vec3(278, 278, -800);
     vec3 lookat = vec3(278, 278, 0);
-//    hitable* world = brdf_();
-//    vec3 lookfrom = vec3(5, 5, 20);
-//    vec3 lookat = vec3(5, 5, 0);
+
     float dist_to_focus = (lookfrom - lookat).length();
     float aperture = 0;
     camera cam(lookfrom, lookat, vec3(0,1,0), 60, float(nx) / float(ny), aperture, dist_to_focus, 0.0, 1.0);
     clock_t startTime,endTime;
     startTime = clock();
 
-    std::vector<std::vector<vec3>> pixel(
-            ny,std::vector<vec3>(nx));
+    std::vector<vec3> pixel(ny * nx);
+
     std::size_t cores = std::thread::hardware_concurrency();
     std::vector<std::future<void>> future_vector;
     for (std::size_t core(0); core < cores; ++core) {
@@ -174,25 +164,23 @@ int main(int argc, char** argv) {
                         float u = (i + drand48()) / float(nx);
                         float v = (j + drand48()) / float(ny);
                         ray r = cam.get_ray(u, v);
-//                        vec3 p = r.point_at_parameter(2.0);
                         col += color(r, world,0);
                     }
                     col /= float(ns);
                     col = vec3( sqrt(col[0]), sqrt(col[1]), sqrt(col[2]) );
-//                    int ir = int(255.99*col[0]);
-//                    int ig = int(255.99*col[1]);
-//                    int ib = int(255.99*col[2]);
-                    pixel[j][i] = vec3{std::min(255.99f*col[0],255.0f), std::min(255.99f*col[1],255.0f), std::min(255.99f*col[2],255.0f)};
+                    pixel[j * nx + i] = vec3{std::min(255.99f*col[0],255.0f), std::min(255.99f*col[1],255.0f), std::min(255.99f*col[2],255.0f)};
                 }
             }
         }));
     }
+
     for (auto &f : future_vector) {
         f.get();
     }
+
     for (int j = ny - 1 ; j >= 0 ; j --)
         for ( int i = 0 ; i < nx ; i ++ )
-            outfile << static_cast<int>(pixel[j][i].x()) << " " << static_cast<int>(pixel[j][i].y()) << " " << static_cast<int>(pixel[j][i].z()) << "\n";
+            outfile << static_cast<int>(pixel[j * nx + i].x()) << " " << static_cast<int>(pixel[j * nx + i].y()) << " " << static_cast<int>(pixel[j * nx + i].z()) << "\n";
 
     endTime = clock();
     std::cout << "Total Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << std::endl;

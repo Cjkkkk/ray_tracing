@@ -7,7 +7,10 @@
 
 #include <cstdlib>
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 inline float drand48(){
     return ((float) rand() / RAND_MAX);
 }
+#endif
+
 #endif //RAY_TRACING_S_RANDOM_H
