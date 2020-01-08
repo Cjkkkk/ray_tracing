@@ -33,7 +33,6 @@ vec3 color(const ray& r, hitable *world, int depth) {
         vec3 attenuation;
         vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
         if (depth < 20 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
-            //std::cout << attenuation << "\n";
             return emitted + attenuation * color(scattered, world, depth+1);
             // 一般物体材质不发光 第一项为0 发光物体不散射 返回亮度
         }
@@ -152,27 +151,27 @@ int main(int argc, char** argv) {
     startTime = clock();
 
     std::vector<vec3> pixel(ny * nx);
-
-    std::size_t cores = std::thread::hardware_concurrency();
-    std::vector<std::future<void>> future_vector;
-    for (std::size_t core(0); core < cores; ++core) {
-        future_vector.emplace_back(std::async([=, &cam, &pixel]() {
-            for (int j = core; j < ny; j+=cores) {
-                for (int i = 0; i < nx; i+=1) {
-                    vec3 col(0, 0, 0);
-                    for (int s=0; s < ns; s++) {
-                        float u = (i + drand48()) / float(nx);
-                        float v = (j + drand48()) / float(ny);
-                        ray r = cam.get_ray(u, v);
-                        col += color(r, world,0);
-                    }
-                    col /= float(ns);
-                    col = vec3( sqrt(col[0]), sqrt(col[1]), sqrt(col[2]) );
-                    pixel[j * nx + i] = vec3{std::min(255.99f*col[0],255.0f), std::min(255.99f*col[1],255.0f), std::min(255.99f*col[2],255.0f)};
-                }
-            }
-        }));
-    }
+    
+    // std::size_t cores = std::thread::hardware_concurrency();
+    // std::vector<std::future<void>> future_vector;
+    // for (std::size_t core(0); core < cores; ++core) {
+    //     future_vector.emplace_back(std::async([=, &cam, &pixel]() {
+    //         for (int j = core; j < ny; j+=cores) {
+    //             for (int i = 0; i < nx; i+=1) {
+    //                 vec3 col(0, 0, 0);
+    //                 for (int s=0; s < ns; s++) {
+    //                     float u = (i + drand48()) / float(nx);
+    //                     float v = (j + drand48()) / float(ny);
+    //                     ray r = cam.get_ray(u, v);
+    //                     col += color(r, world,0);
+    //                 }
+    //                 col /= float(ns);
+    //                 col = vec3( sqrt(col[0]), sqrt(col[1]), sqrt(col[2]) );
+    //                 pixel[j * nx + i] = vec3{std::min(255.99f*col[0],255.0f), std::min(255.99f*col[1],255.0f), std::min(255.99f*col[2],255.0f)};
+    //             }
+    //         }
+    //     }));
+    // }
 
     for (auto &f : future_vector) {
         f.get();

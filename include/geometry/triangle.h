@@ -7,6 +7,13 @@
 
 
 #include "hitable.h"
+#include <math.h>
+
+#ifdef __CUDACC__
+#define CUDA_CALLABLE_MEMBER __host__ __device__
+#else
+#define CUDA_CALLABLE_MEMBER
+#endif
 
 class triangle: public hitable  {
 public:
@@ -16,17 +23,16 @@ public:
         N.make_unit_vector();
         D = dot(N, v0);
     };
-    virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec);
-    virtual bool bounding_box(float t0, float t1, aabb& box) const;
+    CUDA_CALLABLE_MEMBER virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec);
+    CUDA_CALLABLE_MEMBER virtual bool bounding_box(float t0, float t1, aabb& box) const;
     vec3 v0, v1, v2, N;
     float D;
     material *mat_ptr;
 };
 
-
+CUDA_CALLABLE_MEMBER
 bool triangle::hit(const ray& r, float t_min, float t_max, hit_record& rec) {
     // 判断是否ray与平面平行
-    hitable::increaseIntersectionTimes();
     float result = dot(N, r.direction());
     if(std::abs(result) < 1e-6) return false;
     // 求与平面相交时间
@@ -41,24 +47,22 @@ bool triangle::hit(const ray& r, float t_min, float t_max, hit_record& rec) {
             rec.normal = N;
             rec.mat_ptr = mat_ptr;
             rec.t = t;
-//            vec3 middle = (v1 + v2) / 2;
-//            auto middle_length = (middle - v0).length();
-//            rec.u = (middle - p).length() / middle_length;
             return true;
         }
     }
     return false;
 }
 
+CUDA_CALLABLE_MEMBER
 bool triangle:: bounding_box(float t0, float t1, aabb& box) const {
     box = aabb(vec3(
-            std::min(std::min(v0.x(), v1.x()), v2.x()),
-            std::min(std::min(v0.y(), v1.y()), v2.y()),
-            std::min(std::min(v0.z(), v1.z()), v2.z()) - 0.0001f
+            fminf(fminf(v0.x(), v1.x()), v2.x()),
+            fminf(fminf(v0.y(), v1.y()), v2.y()),
+            fminf(fminf(v0.z(), v1.z()), v2.z()) - 0.0001f
             ), vec3(
-            std::max(std::max(v0.x(), v1.x()), v2.x()),
-            std::max(std::max(v0.y(), v1.y()), v2.y()),
-            std::max(std::max(v0.z(), v1.z()), v2.z()) + 0.0001f
+            fmaxf(fmaxf(v0.x(), v1.x()), v2.x()),
+            fmaxf(fmaxf(v0.y(), v1.y()), v2.y()),
+            fmaxf(fmaxf(v0.z(), v1.z()), v2.z()) + 0.0001f
             ));
     return true;
 }

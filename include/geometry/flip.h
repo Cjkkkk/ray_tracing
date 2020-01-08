@@ -7,14 +7,21 @@
 
 #include "hitable.h"
 
+#ifdef __CUDACC__
+#define CUDA_CALLABLE_MEMBER __host__ __device__
+#else
+#define CUDA_CALLABLE_MEMBER
+#endif
+
 class flip: public hitable{
 public:
     flip(hitable* _h): h(_h){}
-    virtual bool hit(const ray& r, float t0, float t1, hit_record& rec);
-    virtual bool bounding_box(float t0, float t1, aabb &box) const;
+    CUDA_CALLABLE_MEMBER virtual bool hit(const ray& r, float t0, float t1, hit_record& rec);
+    CUDA_CALLABLE_MEMBER virtual bool bounding_box(float t0, float t1, aabb &box) const;
     hitable* h;
 };
 
+CUDA_CALLABLE_MEMBER
 bool flip::hit(const ray &r, float t0, float t1, hit_record &rec){
     if(h->hit(r, t0, t1, rec)){
         rec.normal = -rec.normal;
@@ -22,6 +29,8 @@ bool flip::hit(const ray &r, float t0, float t1, hit_record &rec){
     };
     return false;
 }
+
+CUDA_CALLABLE_MEMBER
 bool flip::bounding_box(float t0, float t1, aabb &box) const {
     return h->bounding_box(t0, t1, box);
 }

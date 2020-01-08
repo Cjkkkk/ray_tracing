@@ -10,14 +10,21 @@
 #include "hitablelist.h"
 #include "flip.h"
 
+#ifdef __CUDACC__
+#define CUDA_CALLABLE_MEMBER __host__ __device__
+#else
+#define CUDA_CALLABLE_MEMBER
+#endif
+
 class cornell_box: public hitable  {
 public:
     cornell_box() {}
     cornell_box(const vec3& p0, const vec3& p1, material *ptr);
-    virtual bool hit(const ray& r, float t0, float t1, hit_record& rec);
-    virtual bool bounding_box(float t0, float t1, aabb& box) const {
-        box =  aabb(pmin, pmax);
-        return true; }
+    CUDA_CALLABLE_MEMBER virtual bool hit(const ray& r, float t0, float t1, hit_record& rec);
+    CUDA_CALLABLE_MEMBER virtual bool bounding_box(float t0, float t1, aabb& box) const {
+        box = aabb(pmin, pmax);
+        return true; 
+        }
     vec3 pmin, pmax;
     hitable *list_ptr;
 };
@@ -36,6 +43,7 @@ cornell_box::cornell_box(const vec3& p0, const vec3& p1, material *ptr) {
     list_ptr = new hitable_list(list,i);
 }
 
+CUDA_CALLABLE_MEMBER
 bool cornell_box::hit(const ray& r, float t0, float t1, hit_record& rec){
     return list_ptr->hit(r, t0, t1, rec);
 }

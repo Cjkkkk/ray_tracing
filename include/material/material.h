@@ -9,13 +9,22 @@ struct hit_record;
 
 #include <math.h>
 #include <algorithm>
-#include "../ray.h"
-#include "../geometry/hitable.h"
+#include <stdlib.h>
+
 #include "texture.h"
-#include "../utils/s_random.h"
-#include "../vec3.h"
+#include "ray.h"
+#include "geometry/hitable.h"
+// #include "utils/s_random.h"
+#include "vec3.h"
+
+#ifdef __CUDACC__
+#define CUDA_CALLABLE_MEMBER __host__ __device__
+#else
+#define CUDA_CALLABLE_MEMBER
+#endif
 
 // 让折射率随着角度的变化而变化
+CUDA_CALLABLE_MEMBER
 float schlick(float cosine, float ref_idx) {
     float r0 = (1-ref_idx) / (1+ref_idx);
     r0 = r0*r0;
@@ -24,6 +33,7 @@ float schlick(float cosine, float ref_idx) {
 
 // 返回是否会折射出去 因为从玻璃内部向外部折射的时候 出射的角度的正弦^2 = n^2 * 入射角的正弦^2 可能大于1 此时无法折射出去
 // ni_over_nt is n / n'
+CUDA_CALLABLE_MEMBER
 bool refract(const vec3& v, const vec3& n, float ni_over_nt, vec3& refracted) {
     vec3 uv = unit_vector(v);
     float dt = dot(uv, n);//得到cos
@@ -35,12 +45,12 @@ bool refract(const vec3& v, const vec3& n, float ni_over_nt, vec3& refracted) {
         return false;
 }
 
-
+CUDA_CALLABLE_MEMBER
 vec3 reflect(const vec3& v, const vec3& n) {
     return v - 2*dot(v,n)*n;
 }
 
-
+CUDA_CALLABLE_MEMBER
 vec3 random_in_unit_sphere() {
     vec3 p;
     do {
@@ -50,10 +60,10 @@ vec3 random_in_unit_sphere() {
 }
 
 
-class material  {
+class material {
 public:
-    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const = 0;
-    virtual vec3 emitted(float u, float v, const vec3& p) const{
+    CUDA_CALLABLE_MEMBER virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const = 0;
+    CUDA_CALLABLE_MEMBER virtual vec3 emitted(float u, float v, const vec3& p) const{
         return vec3(0, 0, 0);
     }
 };
@@ -61,14 +71,13 @@ public:
 // 发光物体
 class diffuse_light : public material  {
 public:
-    diffuse_light(texture *a) : emit(a) {}
-    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const { return false; }
-    virtual vec3 emitted(float u, float v, const vec3& p) const { return emit->value(u, v, p); }
-    texture *emit;
+    diffuse_light(texture_ *a) : emit(a) {}
+    CUDA_CALLABLE_MEMBER virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const { return false; }
+    CUDA_CALLABLE_MEMBER virtual vec3 emitted(float u, float v, const vec3& p) const { return emit->value(u, v, p); }
+    texture_ *emit;
 };
 
 // brdf
-
 float GeometrySchlickGGX(float NdotV, float k)
 {
     float nom   = NdotV;
@@ -102,56 +111,52 @@ float schlick_(float cosine, float ref) {
     return ref + ( 1 - ref ) * pow(( 1 - cosine), 5);
 }
 
-class brdf : public material  {
-public:
-    brdf(texture *a, float F0_, float alpha_) : albedo(a), F0(F0_), alpha(alpha_) {}
-    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const {
-        //fr=kdflambert+ksfcook−torrance
-        // 出射光线
-//        vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
-//        scattered = ray(rec.p, reflected, r_in.time());
-        vec3 target = rec.p + rec.normal + random_in_unit_sphere();
-        scattered = ray(rec.p, target-rec.p, r_in.time());
-        vec3 N = rec.normal; // 法向量
-        vec3 V = -r_in.direction();
-        vec3 L = scattered.direction();
-        N.make_unit_vector();
-        V.make_unit_vector();
-        L.make_unit_vector();
-        vec3 H = V + L;
-        H.make_unit_vector();
-        float cosTheta = std::max<float>(dot(N, L), 0.0); // 入射光线与法线的夹角
-        float sch = schlick_(cosTheta, F0);
-        vec3 lambert = ( 1 - sch) * albedo->value(rec.u, rec.v, rec.p) / M_PI;
-        vec3 cook_torrance = sch
-                * D_GGX_TR(N, H, alpha)
-                * GeometrySmith(N, V, L, alpha*alpha / 2)
-                * vec3(sch, sch, sch) / ( 4 * std::max<float>(dot(L, N), 0.0f) * std::max<float>(dot(V, N), 0.0f) + 0.001f);
-        attenuation = (lambert + cook_torrance) * cosTheta * 5;
-        //std::cout << " " << sch << " " << attenuation << "\n";
-        return true;
-    };
-    float F0 , alpha;
-    texture *albedo;
-};
+// class brdf : public material  {
+// public:
+//     brdf(texture *a, float F0_, float alpha_) : albedo(a), F0(F0_), alpha(alpha_) {}
+//     virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const {
+//         vec3 target = rec.p + rec.normal + random_in_unit_sphere();
+//         scattered = ray(rec.p, target-rec.p, r_in.time());
+//         vec3 N = rec.normal; // 法向量
+//         vec3 V = -r_in.direction();
+//         vec3 L = scattered.direction();
+//         N.make_unit_vector();
+//         V.make_unit_vector();
+//         L.make_unit_vector();
+//         vec3 H = V + L;
+//         H.make_unit_vector();
+//         float cosTheta = std::max<float>(dot(N, L), 0.0); // 入射光线与法线的夹角
+//         float sch = schlick_(cosTheta, F0);
+//         vec3 lambert = ( 1 - sch) * albedo->value(rec.u, rec.v, rec.p) / M_PI;
+//         vec3 cook_torrance = sch
+//                 * D_GGX_TR(N, H, alpha)
+//                 * GeometrySmith(N, V, L, alpha*alpha / 2)
+//                 * vec3(sch, sch, sch) / ( 4 * std::max<float>(dot(L, N), 0.0f) * std::max<float>(dot(V, N), 0.0f) + 0.001f);
+//         attenuation = (lambert + cook_torrance) * cosTheta * 5;
+//         //std::cout << " " << sch << " " << attenuation << "\n";
+//         return true;
+//     };
+//     float F0 , alpha;
+//     texture *albedo;
+// };
 
 class lambertian : public material {
 public:
-    lambertian(texture* a) : albedo(a) {}
-    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const  {
+    lambertian(texture_* a) : albedo(a) {}
+    CUDA_CALLABLE_MEMBER virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const  {
         vec3 target = rec.p + rec.normal + random_in_unit_sphere();
         scattered = ray(rec.p, target-rec.p, r_in.time());
         attenuation = albedo->value(rec.u, rec.v, rec.p);
         return true;
     }
 
-    texture *albedo;
+    texture_ *albedo;
 };
 
 class metal : public material {
 public:
     metal(const vec3& a, float f) : albedo(a) { if (f < 1) fuzz = f; else fuzz = 1; }
-    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const  {
+    CUDA_CALLABLE_MEMBER virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const  {
         vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
         scattered = ray(rec.p, reflected + fuzz*random_in_unit_sphere(), r_in.time());
         attenuation = albedo;
@@ -164,7 +169,7 @@ public:
 class dielectric : public material {
 public:
     dielectric(float ri) : ref_idx(ri) {}
-    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const  {
+    CUDA_CALLABLE_MEMBER virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const  {
         vec3 outward_normal;
         vec3 reflected = reflect(r_in.direction(), rec.normal);
         float ni_over_nt;

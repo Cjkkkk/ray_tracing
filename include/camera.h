@@ -5,8 +5,17 @@
 #ifndef RAY_TRACING_CAMERA_H
 #define RAY_TRACING_CAMERA_H
 
+#include <stdlib.h>
 #include "ray.h"
-#include "utils/s_random.h"
+// #include "utils/s_random.h"
+
+#ifdef __CUDACC__
+#define CUDA_CALLABLE_MEMBER __host__ __device__
+#else
+#define CUDA_CALLABLE_MEMBER
+#endif
+
+CUDA_CALLABLE_MEMBER
 vec3 random_in_unit_disk(){
     vec3 p;
     do {
@@ -17,7 +26,7 @@ vec3 random_in_unit_disk(){
 
 class camera {
 public:
-    camera(vec3 lookfrom,vec3 lookat,vec3 vup,float vfov, float aspect, float aperture, float focus_dist, float t0, float t1){
+    CUDA_CALLABLE_MEMBER camera(vec3 lookfrom,vec3 lookat,vec3 vup,float vfov, float aspect, float aperture, float focus_dist, float t0, float t1){
         time0 = t0;
         time1 = t1;
         lens_radius = aperture / 2; //半径是光圈大小的1/2
@@ -34,7 +43,7 @@ public:
         horizontal = 2 * u * half_width * focus_dist;
         vertical = 2 * v * half_height * focus_dist;
     }
-    ray get_ray(float s, float t){
+    CUDA_CALLABLE_MEMBER ray get_ray(float s, float t){
         vec3 rd = lens_radius * random_in_unit_disk();
         vec3 offset = u * rd.x() + v * rd.y();
         float time = time0 + drand48() * (time1 - time0);

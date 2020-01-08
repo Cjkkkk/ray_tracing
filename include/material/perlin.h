@@ -6,8 +6,8 @@
 #define RAY_TRACING_PERLIN_H
 
 #include <iostream>
-#include "../vec3.h"
-#include "../utils/s_random.h"
+#include "vec3.h"
+#include "utils/s_random.h"
 
 inline float perlin_interp(vec3 c[2][2][2], float u, float v, float w) {
     float uu = u*u*(3-2*u);
